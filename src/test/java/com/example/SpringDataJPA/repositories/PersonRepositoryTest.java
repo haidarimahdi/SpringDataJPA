@@ -38,7 +38,7 @@ public class PersonRepositoryTest {
 
         //Create timeslots
         List<TimeSlot> timeSlots = new LinkedList<>();
-        TimeSlot timeslot = new TimeSlot(LocalDate.of(2023, 4,30)
+        TimeSlot timeslot = new TimeSlot(LocalDate.of(2023, 4, 30)
                 , LocalTime.of(9, 30)
                 , LocalTime.of(10, 45)
                 , "PS2"
@@ -46,7 +46,7 @@ public class PersonRepositoryTest {
         persons.get(1).addTimeslot(timeslot);
         timeSlots.add(timeslot);
 
-        timeslot = new TimeSlot(LocalDate.of(2023, 4,30)
+        timeslot = new TimeSlot(LocalDate.of(2023, 4, 30)
                 , LocalTime.of(11, 0)
                 , LocalTime.of(12, 15)
                 , "PS2"
@@ -54,7 +54,7 @@ public class PersonRepositoryTest {
         persons.get(1).addTimeslot(timeslot);
         timeSlots.add(timeslot);
 
-        timeslot = new TimeSlot(LocalDate.of(2023, 5,2)
+        timeslot = new TimeSlot(LocalDate.of(2023, 5, 2)
                 , LocalTime.of(11, 0)
                 , LocalTime.of(12, 15)
                 , "APF"
@@ -62,7 +62,7 @@ public class PersonRepositoryTest {
         persons.get(1).addTimeslot(timeslot);
         timeSlots.add(timeslot);
 
-        timeslot = new TimeSlot(LocalDate.of(2023, 4,30)
+        timeslot = new TimeSlot(LocalDate.of(2023, 4, 30)
                 , LocalTime.of(9, 30)
                 , LocalTime.of(10, 45)
                 , "PS2"
@@ -99,5 +99,120 @@ public class PersonRepositoryTest {
         Assertions.assertEquals("Hugo", resultCalculateHours.get(2).getFirstName());
         Assertions.assertEquals("Hugoson", resultCalculateHours.get(2).getLastName());
         Assertions.assertEquals(1, resultCalculateHours.get(2).getSlotCount());
+    }
+
+    @Test
+    public void test_retrieveAll_noTimeSlots() {
+        // Create persons
+        String[][] names = {{"Max", "Meier"}, {"Mimi", "Meier"}, {"Hugo", "Hugoson"}};
+        ArrayList<Person> persons = new ArrayList<>(names.length);
+        for (String[] name : names) {
+            Person person = new Person(name[0], name[1]);
+            persons.add(person);
+        }
+
+        personRepository.saveAll(persons);
+
+        List<Person> resultRetrieveAll = personRepository.retrieveAllActive();
+        Assertions.assertEquals(0, resultRetrieveAll.size());
+    }
+
+    @Test
+    public void test_retrieveAll_singleTimeSlot() {
+        // Create persons
+        Person person = new Person("Max", "Meier");
+
+        // Create timeslot
+        TimeSlot timeslot = new TimeSlot(LocalDate.of(2023, 4, 30)
+                , LocalTime.of(9, 30)
+                , LocalTime.of(10, 45)
+                , "PS2"
+                , person);
+        person.addTimeslot(timeslot);
+
+        personRepository.save(person);
+        timeslotRepository.save(timeslot);
+
+        List<Person> resultRetrieveAll = personRepository.retrieveAllActive();
+        Assertions.assertEquals(1, resultRetrieveAll.size());
+
+        Assertions.assertEquals("Max", resultRetrieveAll.get(0).getFirstName());
+        Assertions.assertEquals("Meier", resultRetrieveAll.get(0).getLastName());
+        Assertions.assertEquals(1, resultRetrieveAll.get(0).getTimeslots().size());
+    }
+
+    @Test
+    public void test_retrieveAll_multiplePersonsDifferentTimeSlots() {
+        // Create persons
+        String[][] names = {{"Max", "Mustermann"}, {"Erika", "Mustermann"}, {"Hans", "Peter"}};
+        ArrayList<Person> persons = new ArrayList<>(names.length);
+        for (String[] name : names) {
+            Person person = new Person(name[0], name[1]);
+            persons.add(person);
+        }
+
+        // Create timeslots
+        List<TimeSlot> timeSlots = new LinkedList<>();
+        TimeSlot timeslot1 = new TimeSlot(LocalDate.of(2023, 5, 10)
+                , LocalTime.of(10, 0)
+                , LocalTime.of(11, 0)
+                , "Meeting"
+                , persons.get(0));
+        persons.get(0).addTimeslot(timeslot1);
+        timeSlots.add(timeslot1);
+
+        TimeSlot timeslot2 = new TimeSlot(LocalDate.of(2023, 5, 11)
+                , LocalTime.of(14, 0)
+                , LocalTime.of(15, 0)
+                , "Workshop"
+                , persons.get(1));
+        persons.get(1).addTimeslot(timeslot2);
+        timeSlots.add(timeslot2);
+
+        TimeSlot timeslot3 = new TimeSlot(LocalDate.of(2023, 5, 12)
+                , LocalTime.of(11, 0)
+                , LocalTime.of(12, 0)
+                , "Consultation"
+                , persons.get(2));
+        persons.get(2).addTimeslot(timeslot3);
+        timeSlots.add(timeslot3);
+
+        personRepository.saveAll(persons);
+        timeslotRepository.saveAll(timeSlots);
+
+        List<Person> resultRetrieveAll = personRepository.retrieveAllActive();
+        Assertions.assertEquals(3, resultRetrieveAll.size());
+
+        Assertions.assertEquals("Max", resultRetrieveAll.get(0).getFirstName());
+        Assertions.assertEquals("Mustermann", resultRetrieveAll.get(0).getLastName());
+        Assertions.assertEquals(1, resultRetrieveAll.get(0).getTimeslots().size());
+
+        Assertions.assertEquals("Erika", resultRetrieveAll.get(1).getFirstName());
+        Assertions.assertEquals("Mustermann", resultRetrieveAll.get(1).getLastName());
+        Assertions.assertEquals(1, resultRetrieveAll.get(1).getTimeslots().size());
+
+        Assertions.assertEquals("Hans", resultRetrieveAll.get(2).getFirstName());
+        Assertions.assertEquals("Peter", resultRetrieveAll.get(2).getLastName());
+        Assertions.assertEquals(1, resultRetrieveAll.get(2).getTimeslots().size());
+    }
+
+    @Test
+    public void test_calculateHours_noTimeSlots() {
+        // Create persons
+        String[][] names = {{"Max", "Meier"}, {"Mimi", "Meier"}, {"Hugo", "Hugoson"}};
+        ArrayList<Person> persons = new ArrayList<>(names.length);
+        for (String[] name : names) {
+            Person person = new Person(name[0], name[1]);
+            persons.add(person);
+        }
+
+        personRepository.saveAll(persons);
+
+        List<PersonRepository.PersonWithHours> resultCalculateHours = personRepository.calculateHours();
+        Assertions.assertEquals(3, resultCalculateHours.size());
+
+        for (PersonRepository.PersonWithHours personWithHours : resultCalculateHours) {
+            Assertions.assertEquals(0, personWithHours.getSlotCount());
+        }
     }
 }

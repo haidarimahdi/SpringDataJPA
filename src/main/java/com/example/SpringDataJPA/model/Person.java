@@ -25,7 +25,7 @@ public class Person {
     )
     Set<TimeSlot> timeSlots;
 
-    public Person() {
+    protected Person() {
     }
 
 

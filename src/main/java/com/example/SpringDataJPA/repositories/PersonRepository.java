@@ -15,7 +15,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
      * @return all person with timeSlots
      */
     @Query("""
-            SELECT p FROM Person p
+            SELECT DISTINCT p FROM Person p
                         JOIN FETCH p.timeSlots ts 
                                     WHERE ts IS NOT NULL
             """)

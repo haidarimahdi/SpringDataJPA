@@ -23,7 +23,7 @@ public class TimeSlot {
     @ManyToOne(fetch = FetchType.EAGER)
     private Person person;
 
-    public TimeSlot() {
+    protected TimeSlot() {
     }
 
     public TimeSlot(LocalDate date, LocalTime startTime, LocalTime endTime, String description, Person person) {
