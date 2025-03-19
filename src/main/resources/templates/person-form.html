@@ -8,12 +8,12 @@
 <header th:replace="~{layout-header :: header}"></header>
 <main>
   <h2>Person Form</h2>
-  <form th:action="@{/person/new}" method="post">
+  <form th:action="@{person/new}" method="post" th:object="${personDTO}">
     <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName" th:field="*{firstName}" required>
+    <input type="text" id="firstName" name="firstName" th:field="*{firstName}">
     <br>
     <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName" th:field="*{lastName}" required>
+    <input type="text" id="lastName" name="lastName" th:field="*{lastName}">
     <br>
     <button type="submit">Create Person</button>
   </form>

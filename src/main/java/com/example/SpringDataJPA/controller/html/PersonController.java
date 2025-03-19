@@ -41,7 +41,7 @@ public class PersonController {
 
     @GetMapping("/new")
     public String showPersonForm(Model model) {
-        model.addAttribute("");
+        model.addAttribute("personDTO", new PersonDTO());
         return "person-form";
     }
 
@@ -53,9 +53,9 @@ public class PersonController {
 
     @GetMapping("/update/{id}")
     public String showUpdatePersonForm(Model model, @PathVariable Integer id) {
-        Optional<Person> personOptionsl = personService.getPersonById(id);
-        if (personOptionsl.isPresent()) {
-            Person person = personOptionsl.get();
+        Optional<Person> personOptional = personService.getPersonById(id);
+        if (personOptional.isPresent()) {
+            Person person = personOptional.get();
             PersonDTO personDTO = new PersonDTO(person.getFirstName(), person.getLastName());
             model.addAttribute("personDTO", personDTO);
             model.addAttribute("personId", id);

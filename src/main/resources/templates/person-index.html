@@ -13,7 +13,7 @@
       <a href="@{/person/{id}(id=${person.id})}" th:text="${person.firstName} + ' ' + ${person.lastName}"></a>
     </li>
   </ul>
-  <a href="@{/person/new}">New Person</a>
+  <a href="#" th:href="@{/person/new}">New Person</a>
 </main>
 
 </body>
