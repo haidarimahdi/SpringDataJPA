@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Slot Index</title>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+<main>
+  <h2>Time Slot Index</h2>
+  <p>Total number of time slots: <span th:text="${timeSlotCount}"></span></p>
+    <ul>
+        <li th:each="timeSlot : ${timeSlots}">
+      <span th:text="${timeSlot.date} + ' ' + ${timeSlot.startTime} + ' - ' + ${timeSlot.endTime} +
+' (' + ${timeSlot.description} + ')'"></span>
+        </li>
+    </ul>
+</main>
+
+</body>
+</html>

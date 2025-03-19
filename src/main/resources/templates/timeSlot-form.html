@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Slot Form</title>
+  <style>
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+<main>
+  <h2>Time Slot Form</h2>
+  <form th:action="@{${timeSlotId != null ? '/timeSlot/update/' + timeSlotId : '/timeSlot/new'}}"
+        th:object="${timeSlotDTO}" method="post">
+
+    <label for="personName">Person:</label>
+    <input type="text" id="personName"
+           th:value="${personId != null ? person.firstName + ' ' + person.lastName : ''}"
+           readonly>
+    <input type="hidden" th:field="*{personId}" />  <br>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date" th:field="*{date}" required><br>
+
+    <label for="startTime">Start Time:</label>
+    <input type="time" id="startTime" th:field="*{startTime}" required><br>
+
+    <label for="endTime">End Time:</label>
+    <input type="time" id="endTime" th:field="*{endTime}" required><br>
+
+    <label for="description">Description:</label>
+    <input type="text" id="description" th:field="*{description}" required><br>
+
+    <button type="submit" th:text="${timeSlotId != null ? 'Update Time Slot' : 'Create Time Slot'}">Submit</button>
+  </form>
+</main>
+</body>
+</html>

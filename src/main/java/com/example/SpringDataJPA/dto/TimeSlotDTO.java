@@ -1,45 +1,24 @@
-package com.example.SpringDataJPA.model;
-
-import jakarta.persistence.*;
+package com.example.SpringDataJPA.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-public class TimeSlot {
-
-    @Id
-    @GeneratedValue
-    private Integer id;
-
+public class TimeSlotDTO {
     private LocalDate date;
-
     private LocalTime startTime;
-
     private LocalTime endTime;
-
     private String description;
+    private Integer personId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Person person;
-
-    protected TimeSlot() {
+    public TimeSlotDTO() {
     }
 
-    public TimeSlot(LocalDate date, LocalTime startTime, LocalTime endTime, String description, Person person) {
+    public TimeSlotDTO(LocalDate date, LocalTime startTime, LocalTime endTime, String description, Integer personId) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.description = description;
-        this.person = person;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        this.personId = personId;
     }
 
     public LocalDate getDate() {
@@ -74,12 +53,11 @@ public class TimeSlot {
         this.description = description;
     }
 
-    public Person getPerson() {
-        return person;
+    public Integer getPersonId() {
+        return personId;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setPersonId(Integer personId) {
+        this.personId = personId;
     }
-
 }

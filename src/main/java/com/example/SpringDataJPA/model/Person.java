@@ -63,6 +63,7 @@ public class Person {
             timeSlots = new HashSet<TimeSlot>();
         }
         timeSlots.add(timeslot);
+        timeslot.setPerson(this);
     }
 
     public Set<TimeSlot> getTimeslots() {
