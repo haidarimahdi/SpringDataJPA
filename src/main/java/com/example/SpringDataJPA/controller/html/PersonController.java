@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -28,12 +27,12 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    public String index(Model model, @PathVariable Integer id) {
+    public String index(Model model, @PathVariable int id) {
         Optional<Person> personOptional = personRepository.findById(id);
         if (personOptional.isEmpty()) {
             return "Error: No Person Found with id: " + id;
         }
-        Person p = personOptional.get();
+        Person p = personRepository.findById(id).get();
         model.addAttribute("person", p);
         model.addAttribute("slots", p.getTimeslots());
         return "person-details";
@@ -52,14 +51,14 @@ public class PersonController {
     }
 
     @GetMapping("/update/{id}")
-    public String showUpdatePersonForm(Model model, @PathVariable Integer id) {
+    public String showPersonUpdate(Model model, @PathVariable Integer id) {
         Optional<Person> personOptional = personService.getPersonById(id);
         if (personOptional.isPresent()) {
             Person person = personOptional.get();
             PersonDTO personDTO = new PersonDTO(person.getFirstName(), person.getLastName());
             model.addAttribute("personDTO", personDTO);
             model.addAttribute("personId", id);
-            return "person-form";
+            return "person-update";
         } else {
             return "redirect:/person/";
         }

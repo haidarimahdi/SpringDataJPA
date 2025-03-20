@@ -1,7 +1,9 @@
 package com.example.SpringDataJPA.controller.html;
 
 import com.example.SpringDataJPA.dto.TimeSlotDTO;
+import com.example.SpringDataJPA.model.Person;
 import com.example.SpringDataJPA.model.TimeSlot;
+import com.example.SpringDataJPA.repositories.PersonRepository;
 import com.example.SpringDataJPA.repositories.TimeSlotRepository;
 import com.example.SpringDataJPA.service.TimeSlotService;
 import org.springframework.stereotype.Controller;
@@ -15,24 +17,25 @@ import java.util.Optional;
 @RequestMapping("timeSlot")
 public class TimeSlotController {
 
+    private final PersonRepository personRepository;
     TimeSlotRepository timeSlotRepository;
     TimeSlotService timeSlotService;
 
-    public TimeSlotController(TimeSlotRepository timeSlotRepository, TimeSlotService timeSlotService) {
+    public TimeSlotController(TimeSlotRepository timeSlotRepository, TimeSlotService timeSlotService, PersonRepository personRepository) {
         this.timeSlotRepository = timeSlotRepository;
         this.timeSlotService = timeSlotService;
+        this.personRepository = personRepository;
     }
 
     @GetMapping("/")
     public String showAllTimeSlots(Model model) {
         List<TimeSlot> timeSlots = timeSlotRepository.findAll();
         model.addAttribute("timeSlots", timeSlots);
-        System.out.println("timeSlots.size() = " + timeSlots.size());
         model.addAttribute("timeSlotCount", timeSlots.size());
         return "timeSlot-index";
     }
 
-    @GetMapping("/details/{id}")
+    @GetMapping("/{id}")
     public String showTimeSlotDetails(Model model, @PathVariable("id") Integer id) {
         Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
         if (timeSlotOptional.isEmpty()) {
@@ -43,34 +46,39 @@ public class TimeSlotController {
         return "timeSlot-details";
     }
 
-    @GetMapping("/new/{personId}")
-    public String showTimeSlotForm(Model model, @PathVariable("personId") Integer personId) {
-        TimeSlotDTO timeSlotDTO = new TimeSlotDTO();
-        timeSlotDTO.setPersonId(personId);
-        model.addAttribute("timeSlotDTO", timeSlotDTO);
-        model.addAttribute("personId", personId);
+
+    @GetMapping("/new")
+    public String showTimeSlotForm(Model model) {
+        List<Person> persons = personRepository.findAll();
+        model.addAttribute("persons", persons);
+        model.addAttribute("timeSlotDTO", new TimeSlotDTO());
         return "timeSlot-form";
     }
 
     @PostMapping("/new")
     public String createTimeSlot(@ModelAttribute TimeSlotDTO timeSlotDTO) {
-        TimeSlot timeSlot = timeSlotService.createTimeSlot(timeSlotDTO);
-        if (timeSlot == null) {
-            return "redirect:/person/details/" + timeSlotDTO.getPersonId();
-        }
-        return "redirect:/timeSlot/details/" + timeSlot.getId();
+        System.out.println("=====================================");
+        System.out.println("Creating new timeSlot");
+        System.out.println("Date: " + timeSlotDTO.getDate());
+        System.out.println("StartTime: " + timeSlotDTO.getStartTime());
+        System.out.println("EndTime: " + timeSlotDTO.getEndTime());
+        System.out.println("Description: " + timeSlotDTO.getDescription());
+        System.out.println("PersonId: " + timeSlotDTO.getPersonId());
+        System.out.println("=====================================");
+        timeSlotService.createTimeSlot(timeSlotDTO);
+        return "redirect:/timeSlot/";
     }
 
     @GetMapping("/update/{id}")
-    public String showUpdateTimeSlotForm(Model model, @PathVariable Integer id) {
+    public String showTimeSlotUpdate(Model model, @PathVariable Integer id) {
         Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
         if (timeSlotOptional.isPresent()) {
             TimeSlot timeSlot = timeSlotOptional.get();
-            TimeSlotDTO timeSlotDTO = new TimeSlotDTO(timeSlot.getDate(), timeSlot.getStartTime(), timeSlot.getEndTime(),
-                    timeSlot.getDescription(), timeSlot.getPerson().getId());
+            TimeSlotDTO timeSlotDTO = new TimeSlotDTO(timeSlot);
             model.addAttribute("timeSlotDTO", timeSlotDTO);
+            model.addAttribute("persons", personRepository.findAll());
             model.addAttribute("timeSlotId", id);
-            return "timeSlot-form";
+            return "timeSlot-update";
         } else {
             throw new IllegalArgumentException("Invalid timeSlot Id:" + id);
         }
@@ -78,10 +86,19 @@ public class TimeSlotController {
 
     @PostMapping("/update/{id}")
     public String updateTimeSlot(@PathVariable Integer id, @ModelAttribute TimeSlotDTO timeSlotDTO) {
-        TimeSlot timeSlot = timeSlotService.updateTimeSlot(id, timeSlotDTO);
-        if (timeSlot == null) {
-            return "redirect:/timeSlot/update/" + id + "?error";
-        }
+        System.out.println("=====================================");
+        System.out.println("Updating timeSlot with id: " + id);
+        System.out.println("New Date: " + timeSlotDTO.getDate());
+        System.out.println("New StartTime: " + timeSlotDTO.getStartTime());
+        System.out.println("New EndTime: " + timeSlotDTO.getEndTime());
+        System.out.println("New Description: " + timeSlotDTO.getDescription());
+        System.out.println("New PersonId: " + timeSlotDTO.getPersonId());
+        System.out.println("=====================================");
+//        TimeSlot timeSlot = timeSlotService.updateTimeSlot(id, timeSlotDTO);
+        timeSlotService.updateTimeSlot(id, timeSlotDTO);
+//        if (timeSlot == null) {
+//            return "redirect:/timeSlot/update/" + id + "?error";
+//        }
         return "redirect:/timeSlot/details/" + id;
     }
 

@@ -8,13 +8,15 @@
 <header th:replace="~{layout-header :: header}"></header>
 <main>
   <h2>Time Slot Index</h2>
-  <p>Total number of time slots: <span th:text="${timeSlotCount}"></span></p>
+  <p>Total number of time slots: [[${timeSlotCount}]]</p>
     <ul>
         <li th:each="timeSlot : ${timeSlots}">
-      <span th:text="${timeSlot.date} + ' ' + ${timeSlot.startTime} + ' - ' + ${timeSlot.endTime} +
-' (' + ${timeSlot.description} + ')'"></span>
+            <a th:href="|/timeSlot/${timeSlot.id}|"
+               th:text="${timeSlot.date} + ' ' + ${timeSlot.startTime} + ' - ' + ${timeSlot.endTime} +
+                    ' (' + ${timeSlot.description} + ')'"></a>
         </li>
     </ul>
+    <a href="#" th:href="@{/timeSlot/new}">New Time Slot</a>
 </main>
 
 </body>

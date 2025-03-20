@@ -13,8 +13,8 @@ import java.util.Optional;
 @Component
 public class TimeSlotService {
 
-    private TimeSlotRepository timeSlotRepository;
-    private PersonRepository personRepository;
+    private final TimeSlotRepository timeSlotRepository;
+    private final PersonRepository personRepository;
 
     public TimeSlotService(TimeSlotRepository timeSlotRepository, PersonRepository personRepository) {
         this.timeSlotRepository = timeSlotRepository;
@@ -25,18 +25,14 @@ public class TimeSlotService {
         return timeSlotRepository.findAll();
     }
 
-    public Optional<TimeSlot> getTimeSlotById(Integer id) {
+    public Optional<TimeSlot> getTimeSlotById(int id) {
         return timeSlotRepository.findById(id);
     }
 
     public TimeSlot createTimeSlot(TimeSlotDTO timeSlotDTO) {
-        Optional<Person> personOptional = personRepository.findById(timeSlotDTO.getPersonId());
-        if (personOptional.isEmpty()) {
-            return null;
-        }
-        Person person = personOptional.get();
         TimeSlot timeSlot = new TimeSlot(timeSlotDTO.getDate(), timeSlotDTO.getStartTime(), timeSlotDTO.getEndTime(),
-                timeSlotDTO.getDescription(), person);
+                timeSlotDTO.getDescription(), personRepository.findById(timeSlotDTO.getPersonId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid person Id:" + timeSlotDTO.getPersonId())));
         return timeSlotRepository.save(timeSlot);
     }
 

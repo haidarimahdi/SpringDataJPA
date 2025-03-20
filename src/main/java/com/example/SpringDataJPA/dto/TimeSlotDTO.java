@@ -1,14 +1,23 @@
 package com.example.SpringDataJPA.dto;
 
+import com.example.SpringDataJPA.model.TimeSlot;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class TimeSlotDTO {
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime endTime;
     private String description;
     private Integer personId;
+    private TimeSlot timeSlot;
+    private String fulllName;
 
     public TimeSlotDTO() {
     }
@@ -19,6 +28,15 @@ public class TimeSlotDTO {
         this.endTime = endTime;
         this.description = description;
         this.personId = personId;
+    }
+
+    public TimeSlotDTO(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+        this.date = timeSlot.getDate();
+        this.startTime = timeSlot.getStartTime();
+        this.endTime = timeSlot.getEndTime();
+        this.description = timeSlot.getDescription();
+        this.personId = timeSlot.getPerson().getId();
     }
 
     public LocalDate getDate() {
@@ -59,5 +77,9 @@ public class TimeSlotDTO {
 
     public void setPersonId(Integer personId) {
         this.personId = personId;
+    }
+
+    public String getFullName() {
+        return String.format("%s %s", timeSlot.getPerson().getFirstName(), timeSlot.getPerson().getLastName());
     }
 }

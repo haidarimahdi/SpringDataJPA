@@ -82,4 +82,8 @@ public class TimeSlot {
         this.person = person;
     }
 
+    public String info() {
+        return String.format("TimeSlot: %d %s %s %s %s %s%n", id, date, startTime, endTime, description);
+    }
+
 }

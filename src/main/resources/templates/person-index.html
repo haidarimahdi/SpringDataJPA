@@ -7,10 +7,11 @@
 <body>
 <header th:replace="~{/layout-header :: header}"></header>
 <main>
-  <h2>Hello Word, we have <span th:text="${people.size()}"></span> people in the system</h2>
+  <h2>Hello Word, we have [[${people.size()}]] people in the system</h2>
   <ul>
     <li th:each="person : ${people}">
-      <a href="@{/person/{id}(id=${person.id})}" th:text="${person.firstName} + ' ' + ${person.lastName}"></a>
+      <a th:href="|/person/${person.id}|"
+         th:text="${person.firstName} + ' ' + ${person.lastName}"></a>
     </li>
   </ul>
   <a href="#" th:href="@{/person/new}">New Person</a>
