@@ -14,9 +14,9 @@ import java.util.Optional;
 @Component
 public class PersonService {
 
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
 
-    private TimeSlotRepository timeSlotRepository;
+    private final TimeSlotRepository timeSlotRepository;
 
     public PersonService(PersonRepository personRepository, TimeSlotRepository timeSlotRepository) {
         this.personRepository = personRepository;

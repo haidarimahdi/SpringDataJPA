@@ -57,14 +57,6 @@ public class TimeSlotController {
 
     @PostMapping("/new")
     public String createTimeSlot(@ModelAttribute TimeSlotDTO timeSlotDTO) {
-        System.out.println("=====================================");
-        System.out.println("Creating new timeSlot");
-        System.out.println("Date: " + timeSlotDTO.getDate());
-        System.out.println("StartTime: " + timeSlotDTO.getStartTime());
-        System.out.println("EndTime: " + timeSlotDTO.getEndTime());
-        System.out.println("Description: " + timeSlotDTO.getDescription());
-        System.out.println("PersonId: " + timeSlotDTO.getPersonId());
-        System.out.println("=====================================");
         timeSlotService.createTimeSlot(timeSlotDTO);
         return "redirect:/timeSlot/";
     }
@@ -86,19 +78,7 @@ public class TimeSlotController {
 
     @PostMapping("/update/{id}")
     public String updateTimeSlot(@PathVariable Integer id, @ModelAttribute TimeSlotDTO timeSlotDTO) {
-        System.out.println("=====================================");
-        System.out.println("Updating timeSlot with id: " + id);
-        System.out.println("New Date: " + timeSlotDTO.getDate());
-        System.out.println("New StartTime: " + timeSlotDTO.getStartTime());
-        System.out.println("New EndTime: " + timeSlotDTO.getEndTime());
-        System.out.println("New Description: " + timeSlotDTO.getDescription());
-        System.out.println("New PersonId: " + timeSlotDTO.getPersonId());
-        System.out.println("=====================================");
-//        TimeSlot timeSlot = timeSlotService.updateTimeSlot(id, timeSlotDTO);
         timeSlotService.updateTimeSlot(id, timeSlotDTO);
-//        if (timeSlot == null) {
-//            return "redirect:/timeSlot/update/" + id + "?error";
-//        }
         return "redirect:/timeSlot/details/" + id;
     }
 
