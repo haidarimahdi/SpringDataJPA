@@ -94,31 +94,21 @@ public class TimeSlotClient {
             try (OutputStream os = connection.getOutputStream()) {
                 // Send the JSON payload
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-//                os.write(input, 0, input.length);
                 os.write(input);
             }
 
             int responseCode = connection.getResponseCode();
             System.out.println("Response code: " + responseCode);
 
-//            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-//                System.out.println("Response Headers: ==========================");
-//                StringBuilder response = new StringBuilder();
-//                String responseLine = null;
-//                while ((responseLine = br.readLine()) != null) {
-//                    response.append(responseLine.trim());
-//                }
-//                System.out.println("Response Body: " + response.toString());
-//            }
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            System.out.println("Response Headers: ==========================");
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                System.out.println("Response Headers: ==========================");
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                System.out.println("Response Body: " + response.toString());
             }
-            System.out.println("Response Body: " + response.toString());
-
         } catch (IOException e) {
             System.err.println("Error: An error occurred while communicating with the server: " + e.getMessage());
             e.printStackTrace();
