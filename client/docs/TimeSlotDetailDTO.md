@@ -1,0 +1,10 @@
+# TimeSlotDetailDTO
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **Integer** |  |  [optional]
+**date** | [**LocalDate**](LocalDate.md) |  |  [optional]
+**startTime** | [**org.joda.time.***](org.joda.time.*.md) |  |  [optional]
+**endTime** | [**org.joda.time.***](org.joda.time.*.md) |  |  [optional]
+**personId** | **Integer** |  |  [optional]

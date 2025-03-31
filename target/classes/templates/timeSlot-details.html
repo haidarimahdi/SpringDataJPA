@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Slot Details</title>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+<main>
+    <h2>Time Slot Details</h2>
+
+    <p>Date: [[|${timeSlot.date}|]]</p>
+    <p>Start Time: [[|${timeSlot.startTime}|]]</p>
+    <p>End Time: [[|${timeSlot.endTime}|]]</p>
+    <p>Description: [[${timeSlot.description}]]</p>
+    <p>Person: [[|${timeSlot.person.firstName} ${timeSlot.person.lastName}|]]</p>
+
+    <a href="#" th:href="@{'/timeSlot/update/' + ${timeSlot.id}}">Update Time Slot</a>
+    <br>
+    <form th:action="@{'/timeSlot/delete/' + ${timeSlot.id}}" method="post">
+        <button type="submit">Delete Time Slot</button>
+    </form>
+</main>
+
+</body>
+</html>
