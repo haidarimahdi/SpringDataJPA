@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Create New Project</title>
+  <style>
+    label { display: block; margin-top: 10px; }
+    input[type=text], input[type=number], textarea, select { width: 300px; margin-bottom: 10px; }
+    select[multiple] { height: 150px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 15px;}
+    .error { color: red; font-size: 0.9em;}
+  </style>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+
+<main>
+  <h2>Create New Project</h2>
+
+  <form th:action="@{/project/new}" method="post" th:object="${projectDTO}">
+    <div>
+      <label for="name">Project Name:</label>
+      <input type="text" id="name" th:field="*{name}" required>
+      <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</span>
+    </div>
+    <div>
+      <label for="description">Description:</label>
+      <textarea id="description" th:field="*{description}" rows="3"></textarea>
+    </div>
+    <div>
+      <label for="scheduled_effort">Scheduled Effort (hours):</label>
+      <input type="number" id="scheduled_effort" th:field="*{scheduledEffort}" min="0">
+    </div>
+
+    <hr/>
+
+    <div>
+      <label for="personIds">Assigned Persons:</label>
+      <div id="personIds" th:each="person : ${allPersons}">
+        <input type="checkbox" th:field="*{personIds}" th:value="${person.id}">
+        <span th:text="${person.firstName} + ' ' + ${person.lastName}"></span>
+      </div>
+    </div>
+
+    <button type="submit">Create Project</button>
+  </form>
+</main>
+
+</body>
+</html>

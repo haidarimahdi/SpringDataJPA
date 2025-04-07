@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Project Details: ' + ${projectDetails.name}">Project Details</title>
+  <style>
+    .person-details { margin-bottom: 15px; border: 1px solid #eee; padding: 10px; }
+    .timeslot-details { margin-left: 20px; }
+    .summary-info { font-weight: bold; margin-left: 10px; }
+  </style>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+
+<main>
+  <h2 th:text="'Project: ' + ${projectDetails.name}">Project Name</h2>
+
+  <p><strong>ID:</strong>
+    <span th:text="${projectDetails.id}"></span></p>
+  <p><strong>Description:</strong>
+    <span th:text="${projectDetails.description != null ? projectDetails.description : 'N/A'}"></span></p>
+  <p><strong>Scheduled Effort (hours):</strong>
+    <span th:text="${projectDetails.scheduledEffort != null ? projectDetails.scheduledEffort : 'N/A'}"></span></p>
+
+  <hr/>
+
+  <h3>Assigned Persons and Their Time Slots for this Project</h3>
+  <div th:if="${#lists.isEmpty(projectDetails.assignedPersons)}">
+    <p>No persons assigned to this project yet.</p>
+  </div>
+
+  <div th:each="assignedPerson : ${projectDetails.assignedPersons}" class="person-details">
+    <h4>
+      <a th:href="@{'/person/' + ${assignedPerson.personId}}"
+         th:text="${assignedPerson.firstName} + ' ' + ${assignedPerson.lastName}">Person Name</a>
+
+        <span class="summary-info"
+              th:text="|Total Hours: ${#numbers.formatDecimal(assignedPerson.totalHoursBooked, 1, 2)}h
+              (${#numbers.formatDecimal(assignedPerson.percentageOfTotalHours, 1, 2)}%)|">
+            (Total Hours: 0.00h (0.00%))
+      </span>
+    </h4>
+
+    <div th:if="${#lists.isEmpty(assignedPerson.projectTimeSlots)}">
+      <p>No time slots recorded for this person on this project.</p>
+    </div>
+    <ul th:unless="${#lists.isEmpty(assignedPerson.projectTimeSlots)}" class="timeslot-details">
+      <li th:each="timeSlot : ${assignedPerson.projectTimeSlots}">
+        <span th:text="${#temporals.format(timeSlot.date, 'yyyy-MM-dd')}"></span> :
+        <span th:text="${#temporals.format(timeSlot.startTime, 'HH:mm')}"></span> -
+        <span th:text="${#temporals.format(timeSlot.endTime, 'HH:mm')}"></span>
+        (<span th:text="${timeSlot.description}">Description</span>)
+        <a th:href="@{'/timeSlot/' + ${timeSlot.id}}">(details)</a>
+      </li>
+    </ul>
+  </div>
+  <hr/>
+
+  <form th:action="@{'/project/update/' + ${projectDetails.id}}" method="get">
+    <button type="submit">Update Project</button>
+  </form>
+  <form th:action="@{'/project/delete/' + ${projectDetails.id}}" method="post"
+        onsubmit="return confirm('Are you sure you want to delete this project and its associated timeslots?');">
+    <button type="submit">Delete Project</button>
+  </form>
+
+</main>
+
+</body>
+</html>
