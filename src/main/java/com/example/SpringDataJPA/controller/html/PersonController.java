@@ -1,14 +1,18 @@
 package com.example.SpringDataJPA.controller.html;
 
 import com.example.SpringDataJPA.dto.PersonDTO;
+import com.example.SpringDataJPA.dto.ProjectTimeSummaryDTO;
 import com.example.SpringDataJPA.model.Person;
 import com.example.SpringDataJPA.repositories.PersonRepository;
 import com.example.SpringDataJPA.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -16,9 +20,9 @@ import java.util.Optional;
 public class PersonController {
 
     @Autowired
-    PersonRepository personRepository;
+    private PersonRepository personRepository;
     @Autowired
-    PersonService personService;
+    private PersonService personService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -27,14 +31,17 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    public String index(Model model, @PathVariable int id) {
+    public String personDetails(Model model, @PathVariable int id) {
         Optional<Person> personOptional = personRepository.findById(id);
         if (personOptional.isEmpty()) {
-            return "Error: No Person Found with id: " + id;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "No Person Found with id: " + id);
         }
-        Person p = personRepository.findById(id).get();
-        model.addAttribute("person", p);
-        model.addAttribute("slots", p.getTimeslots());
+        Person person = personRepository.findById(id).get();
+        model.addAttribute("person", person);
+        model.addAttribute("slots", person.getTimeslots());
+        List<ProjectTimeSummaryDTO> projectSummary = personService.getProjectTimeSummary(id);
+        model.addAttribute("projectSummary", projectSummary);
+
         return "person-details";
     }
 

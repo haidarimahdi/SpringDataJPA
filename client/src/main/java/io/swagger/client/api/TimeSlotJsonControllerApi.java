@@ -26,6 +26,8 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 
 
+import io.swagger.client.model.PageTimeSlot;
+import io.swagger.client.model.Pageable;
 import io.swagger.client.model.TimeSlotDTO;
 import io.swagger.client.model.TimeSlotDetailDTO;
 
@@ -308,6 +310,273 @@ public class TimeSlotJsonControllerApi {
 
         com.squareup.okhttp.Call call = deleteTimeSlotJSONValidateBeforeCall(id, progressListener, progressRequestListener);
         apiClient.executeAsync(call, callback);
+        return call;
+    }
+    /**
+     * Build call for getAllTimeSlotsJSONPaginated
+     * @param pageable  (required)
+     * @param progressListener Progress listener
+     * @param progressRequestListener Progress request listener
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     */
+    public com.squareup.okhttp.Call getAllTimeSlotsJSONPaginatedCall(Pageable pageable, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+        Object localVarPostBody = null;
+        
+        // create path and map variables
+        String localVarPath = "/timeSlot/list.json";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        if (pageable != null)
+        localVarQueryParams.addAll(apiClient.parameterToPair("pageable", pageable));
+
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) localVarHeaderParams.put("Accept", localVarAccept);
+
+        final String[] localVarContentTypes = {
+            
+        };
+        final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        if(progressListener != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+                @Override
+                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
+                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                    return originalResponse.newBuilder()
+                    .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                    .build();
+                }
+            });
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        if (headers != null) {
+            localVarHeaderParams.putAll(headers);
+        }
+        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private com.squareup.okhttp.Call getAllTimeSlotsJSONPaginatedValidateBeforeCall(Pageable pageable, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+        // verify the required parameter 'pageable' is set
+        if (pageable == null) {
+            throw new ApiException("Missing the required parameter 'pageable' when calling getAllTimeSlotsJSONPaginated(Async)");
+        }
+        
+        com.squareup.okhttp.Call call = getAllTimeSlotsJSONPaginatedCall(pageable, progressListener, progressRequestListener);
+        return call;
+
+        
+        
+        
+        
+    }
+
+    /**
+     * 
+     * 
+     * @param pageable  (required)
+     * @return PageTimeSlot
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public PageTimeSlot getAllTimeSlotsJSONPaginated(Pageable pageable) throws ApiException {
+        ApiResponse<PageTimeSlot> resp = getAllTimeSlotsJSONPaginatedWithHttpInfo(pageable);
+        return resp.getData();
+    }
+
+    /**
+     * 
+     * 
+     * @param pageable  (required)
+     * @return ApiResponse&lt;PageTimeSlot&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ApiResponse<PageTimeSlot> getAllTimeSlotsJSONPaginatedWithHttpInfo(Pageable pageable) throws ApiException {
+        com.squareup.okhttp.Call call = getAllTimeSlotsJSONPaginatedValidateBeforeCall(pageable, null, null);
+        Type localVarReturnType = new TypeToken<PageTimeSlot>(){}.getType();
+        return apiClient.execute(call, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * 
+     * @param pageable  (required)
+     * @param callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     */
+    public com.squareup.okhttp.Call getAllTimeSlotsJSONPaginatedAsync(Pageable pageable, final ApiCallback<PageTimeSlot> callback) throws ApiException {
+
+        ProgressResponseBody.ProgressListener progressListener = null;
+        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
+
+        if (callback != null) {
+            progressListener = new ProgressResponseBody.ProgressListener() {
+                @Override
+                public void update(long bytesRead, long contentLength, boolean done) {
+                    callback.onDownloadProgress(bytesRead, contentLength, done);
+                }
+            };
+
+            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
+                @Override
+                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
+                    callback.onUploadProgress(bytesWritten, contentLength, done);
+                }
+            };
+        }
+
+        com.squareup.okhttp.Call call = getAllTimeSlotsJSONPaginatedValidateBeforeCall(pageable, progressListener, progressRequestListener);
+        Type localVarReturnType = new TypeToken<PageTimeSlot>(){}.getType();
+        apiClient.executeAsync(call, localVarReturnType, callback);
+        return call;
+    }
+    /**
+     * Build call for getProjectTimeSlotsJSONPaginated
+     * @param projectId  (required)
+     * @param pageable  (required)
+     * @param progressListener Progress listener
+     * @param progressRequestListener Progress request listener
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     */
+    public com.squareup.okhttp.Call getProjectTimeSlotsJSONPaginatedCall(Integer projectId, Pageable pageable, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+        Object localVarPostBody = null;
+        
+        // create path and map variables
+        String localVarPath = "/timeSlot/project/{projectId}.json"
+            .replaceAll("\\{" + "projectId" + "\\}", apiClient.escapeString(projectId.toString()));
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        if (pageable != null)
+        localVarQueryParams.addAll(apiClient.parameterToPair("pageable", pageable));
+
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) localVarHeaderParams.put("Accept", localVarAccept);
+
+        final String[] localVarContentTypes = {
+            
+        };
+        final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        if(progressListener != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+                @Override
+                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
+                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                    return originalResponse.newBuilder()
+                    .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                    .build();
+                }
+            });
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        if (headers != null) {
+            localVarHeaderParams.putAll(headers);
+        }
+        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private com.squareup.okhttp.Call getProjectTimeSlotsJSONPaginatedValidateBeforeCall(Integer projectId, Pageable pageable, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+        // verify the required parameter 'projectId' is set
+        if (projectId == null) {
+            throw new ApiException("Missing the required parameter 'projectId' when calling getProjectTimeSlotsJSONPaginated(Async)");
+        }
+        // verify the required parameter 'pageable' is set
+        if (pageable == null) {
+            throw new ApiException("Missing the required parameter 'pageable' when calling getProjectTimeSlotsJSONPaginated(Async)");
+        }
+        
+        com.squareup.okhttp.Call call = getProjectTimeSlotsJSONPaginatedCall(projectId, pageable, progressListener, progressRequestListener);
+        return call;
+
+        
+        
+        
+        
+    }
+
+    /**
+     * 
+     * 
+     * @param projectId  (required)
+     * @param pageable  (required)
+     * @return PageTimeSlot
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public PageTimeSlot getProjectTimeSlotsJSONPaginated(Integer projectId, Pageable pageable) throws ApiException {
+        ApiResponse<PageTimeSlot> resp = getProjectTimeSlotsJSONPaginatedWithHttpInfo(projectId, pageable);
+        return resp.getData();
+    }
+
+    /**
+     * 
+     * 
+     * @param projectId  (required)
+     * @param pageable  (required)
+     * @return ApiResponse&lt;PageTimeSlot&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ApiResponse<PageTimeSlot> getProjectTimeSlotsJSONPaginatedWithHttpInfo(Integer projectId, Pageable pageable) throws ApiException {
+        com.squareup.okhttp.Call call = getProjectTimeSlotsJSONPaginatedValidateBeforeCall(projectId, pageable, null, null);
+        Type localVarReturnType = new TypeToken<PageTimeSlot>(){}.getType();
+        return apiClient.execute(call, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * 
+     * @param projectId  (required)
+     * @param pageable  (required)
+     * @param callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     */
+    public com.squareup.okhttp.Call getProjectTimeSlotsJSONPaginatedAsync(Integer projectId, Pageable pageable, final ApiCallback<PageTimeSlot> callback) throws ApiException {
+
+        ProgressResponseBody.ProgressListener progressListener = null;
+        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
+
+        if (callback != null) {
+            progressListener = new ProgressResponseBody.ProgressListener() {
+                @Override
+                public void update(long bytesRead, long contentLength, boolean done) {
+                    callback.onDownloadProgress(bytesRead, contentLength, done);
+                }
+            };
+
+            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
+                @Override
+                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
+                    callback.onUploadProgress(bytesWritten, contentLength, done);
+                }
+            };
+        }
+
+        com.squareup.okhttp.Call call = getProjectTimeSlotsJSONPaginatedValidateBeforeCall(projectId, pageable, progressListener, progressRequestListener);
+        Type localVarReturnType = new TypeToken<PageTimeSlot>(){}.getType();
+        apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
     }
     /**

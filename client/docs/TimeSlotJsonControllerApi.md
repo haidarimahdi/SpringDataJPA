@@ -6,6 +6,8 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**createTimeSlotJSON**](TimeSlotJsonControllerApi.md#createTimeSlotJSON) | **POST** /timeSlot | 
 [**deleteTimeSlotJSON**](TimeSlotJsonControllerApi.md#deleteTimeSlotJSON) | **DELETE** /timeSlot/{id}.json | 
+[**getAllTimeSlotsJSONPaginated**](TimeSlotJsonControllerApi.md#getAllTimeSlotsJSONPaginated) | **GET** /timeSlot/list.json | 
+[**getProjectTimeSlotsJSONPaginated**](TimeSlotJsonControllerApi.md#getProjectTimeSlotsJSONPaginated) | **GET** /timeSlot/project/{projectId}.json | 
 [**getTimeSlotDetailJSON**](TimeSlotJsonControllerApi.md#getTimeSlotDetailJSON) | **GET** /timeSlot/{id}.json | 
 [**updateTimeSlotJSON**](TimeSlotJsonControllerApi.md#updateTimeSlotJSON) | **POST** /timeSlot/{id}.json | 
 
@@ -93,6 +95,94 @@ No authorization required
 
  - **Content-Type**: Not defined
  - **Accept**: Not defined
+
+<a name="getAllTimeSlotsJSONPaginated"></a>
+# **getAllTimeSlotsJSONPaginated**
+> PageTimeSlot getAllTimeSlotsJSONPaginated(pageable)
+
+
+
+### Example
+```java
+// Import classes:
+//import io.swagger.client.ApiException;
+//import io.swagger.client.api.TimeSlotJsonControllerApi;
+
+
+TimeSlotJsonControllerApi apiInstance = new TimeSlotJsonControllerApi();
+Pageable pageable = new Pageable(); // Pageable | 
+try {
+    PageTimeSlot result = apiInstance.getAllTimeSlotsJSONPaginated(pageable);
+    System.out.println(result);
+} catch (ApiException e) {
+    System.err.println("Exception when calling TimeSlotJsonControllerApi#getAllTimeSlotsJSONPaginated");
+    e.printStackTrace();
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **pageable** | [**Pageable**](.md)|  |
+
+### Return type
+
+[**PageTimeSlot**](PageTimeSlot.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+<a name="getProjectTimeSlotsJSONPaginated"></a>
+# **getProjectTimeSlotsJSONPaginated**
+> PageTimeSlot getProjectTimeSlotsJSONPaginated(projectId, pageable)
+
+
+
+### Example
+```java
+// Import classes:
+//import io.swagger.client.ApiException;
+//import io.swagger.client.api.TimeSlotJsonControllerApi;
+
+
+TimeSlotJsonControllerApi apiInstance = new TimeSlotJsonControllerApi();
+Integer projectId = 56; // Integer | 
+Pageable pageable = new Pageable(); // Pageable | 
+try {
+    PageTimeSlot result = apiInstance.getProjectTimeSlotsJSONPaginated(projectId, pageable);
+    System.out.println(result);
+} catch (ApiException e) {
+    System.err.println("Exception when calling TimeSlotJsonControllerApi#getProjectTimeSlotsJSONPaginated");
+    e.printStackTrace();
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **projectId** | **Integer**|  |
+ **pageable** | [**Pageable**](.md)|  |
+
+### Return type
+
+[**PageTimeSlot**](PageTimeSlot.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 <a name="getTimeSlotDetailJSON"></a>
 # **getTimeSlotDetailJSON**

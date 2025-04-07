@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Slots for Project</title> <style> /* Basic pagination style */
+.pagination { margin-top: 20px; }
+.pagination a, .pagination span { padding: 5px 10px; margin: 0 2px; border: 1px solid #ccc; text-decoration: none; }
+.pagination .active { font-weight: bold; background-color: #eee; }
+.pagination .disabled { color: #ccc; border-color: #eee; }
+</style>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+<main>
+    <h2>Time Slots for Project ID: <span th:text="${projectId}">Project ID</span></h2>
+    <p>Total time slots for this project: <span th:text="${timeSlotPage.totalElements}">0</span></p>
+    <ul>
+        <li th:each="timeSlot : ${timeSlotPage.content}">
+            <a th:href="@{'/timeSlot/' + ${timeSlot.id}}"
+               th:text="${timeSlot.date} + ' ' + ${timeSlot.startTime} + ' - ' + ${timeSlot.endTime} +
+                    ' (' + ${timeSlot.description} + ')'">Time Slot Details</a>
+            <span th:if="${timeSlot.person}"> by
+                <a th:href="@{'/person/' + ${timeSlot.person.id}}"
+                   th:text="${timeSlot.person.firstName} + ' ' + ${timeSlot.person.lastName}"></a>
+             </span>
+        </li>
+    </ul>
+    <a href="#" th:href="@{/timeSlot/new}">New Time Slot</a> <div class="pagination" th:if="${timeSlotPage.totalPages > 1}">
+    <a th:href="@{'/timeSlot/project/' + ${projectId}(size=${timeSlotPage.size}, page=${timeSlotPage.number - 1}, sort=${param.sort})}"
+       th:unless="${timeSlotPage.first}" class="prev">&laquo; Previous</a>
+    <span th:if="${timeSlotPage.first}" class="disabled">&laquo; Previous</span>
+
+    <span th:each="pageNumber : ${#numbers.sequence(0, timeSlotPage.totalPages - 1)}">
+            <a th:href="@{'/timeSlot/project/' + ${projectId}(size=${timeSlotPage.size}, page=${pageNumber}, sort=${param.sort})}"
+               th:text="${pageNumber + 1}"
+               th:class="${pageNumber == timeSlotPage.number ? 'active' : ''}"></a>
+        </span>
+
+    <a th:href="@{'/timeSlot/project/' + ${projectId}(size=${timeSlotPage.size}, page=${timeSlotPage.number + 1}, sort=${param.sort})}"
+       th:unless="${timeSlotPage.last}" class="next">Next &raquo;</a>
+    <span th:if="${timeSlotPage.last}" class="disabled">Next &raquo;</span>
+</div>
+</main>
+</body>
+</html>

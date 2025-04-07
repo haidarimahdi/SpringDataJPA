@@ -16,6 +16,8 @@ import java.util.Optional;
 
 /**
  * REST controller for managing Person entities in JSON format.
+ * This class provides endpoints for creating, updating, deleting,
+ * and retrieving person details in JSON format.
  */
 @RestController
 @RequestMapping("/person")

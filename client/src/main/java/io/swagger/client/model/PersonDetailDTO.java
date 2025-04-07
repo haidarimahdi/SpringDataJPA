@@ -19,6 +19,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import io.swagger.client.model.ProjectDetailDTO;
 import io.swagger.client.model.TimeSlotDetailDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.IOException;
@@ -28,7 +29,7 @@ import java.util.List;
  * PersonDetailDTO
  */
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-03-31T00:35:36.207118415Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-04-07T21:28:19.344429018Z[GMT]")
 
 public class PersonDetailDTO {
   @SerializedName("id")
@@ -42,6 +43,9 @@ public class PersonDetailDTO {
 
   @SerializedName("timeSlots")
   private List<TimeSlotDetailDTO> timeSlots = null;
+
+  @SerializedName("projects")
+  private List<ProjectDetailDTO> projects = null;
 
   public PersonDetailDTO id(Integer id) {
     this.id = id;
@@ -123,6 +127,32 @@ public class PersonDetailDTO {
     this.timeSlots = timeSlots;
   }
 
+  public PersonDetailDTO projects(List<ProjectDetailDTO> projects) {
+    this.projects = projects;
+    return this;
+  }
+
+  public PersonDetailDTO addProjectsItem(ProjectDetailDTO projectsItem) {
+    if (this.projects == null) {
+      this.projects = new ArrayList<ProjectDetailDTO>();
+    }
+    this.projects.add(projectsItem);
+    return this;
+  }
+
+   /**
+   * Get projects
+   * @return projects
+  **/
+  @Schema(description = "")
+  public List<ProjectDetailDTO> getProjects() {
+    return projects;
+  }
+
+  public void setProjects(List<ProjectDetailDTO> projects) {
+    this.projects = projects;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -136,12 +166,13 @@ public class PersonDetailDTO {
     return Objects.equals(this.id, personDetailDTO.id) &&
         Objects.equals(this.firstName, personDetailDTO.firstName) &&
         Objects.equals(this.lastName, personDetailDTO.lastName) &&
-        Objects.equals(this.timeSlots, personDetailDTO.timeSlots);
+        Objects.equals(this.timeSlots, personDetailDTO.timeSlots) &&
+        Objects.equals(this.projects, personDetailDTO.projects);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, firstName, lastName, timeSlots);
+    return Objects.hash(id, firstName, lastName, timeSlots, projects);
   }
 
 
@@ -154,6 +185,7 @@ public class PersonDetailDTO {
     sb.append("    firstName: ").append(toIndentedString(firstName)).append("\n");
     sb.append("    lastName: ").append(toIndentedString(lastName)).append("\n");
     sb.append("    timeSlots: ").append(toIndentedString(timeSlots)).append("\n");
+    sb.append("    projects: ").append(toIndentedString(projects)).append("\n");
     sb.append("}");
     return sb.toString();
   }

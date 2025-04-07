@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Index</title>
+  <style>
+    /* Style for marking over-booked projects */
+    .over-booked {
+      font-weight: bold;
+      color: red;
+    }
+    .project-summary {
+      color: #555;
+      font-size: 0.9em;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+<header th:replace="~{layout-header :: header}"></header>
+<main>
+  <h2>Projects</h2>
+  <p>Total number of projects: [[${projectsData.size()}]]</p>
+  <ul>
+    <li th:each="projectData : ${projectsData}">
+<!--      <a th:href="|/project/${projectData.id}|" th:text="${projectData.name} + ' ' +-->
+<!--      ${projectData.description != null ? projectData.description : 'No description set'} + ' ' +-->
+<!--      ${projectData.scheduled_effort != null ? projectData.scheduled_effort + ' hours' : 'No effort schedule set'}"></a>-->
+      <a th:href="@{'/project/' + ${projectData.id}}"
+      th:text="${projectData.name}">Project Name</a>
+
+      <span class="project-summary"
+            th:text="|(${projectData.getFormattedActualHours()} booked / ${projectData.getFormattedScheduledEffort()})|">
+            (0.00h booked / No effort scheduled)
+      </span>
+
+      <span th:if="${projectData.isOverBooked()}" class="over-booked">
+         [!] Overbooked
+      </span>
+
+    </li>
+  </ul>
+
+  <a href="#" th:href="@{/project/new}">New Project</a>
+</main>
+
+</body>
+</html>

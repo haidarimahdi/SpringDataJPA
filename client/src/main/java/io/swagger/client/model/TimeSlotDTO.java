@@ -26,7 +26,7 @@ import org.threeten.bp.LocalDate;
  * TimeSlotDTO
  */
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-03-31T00:35:36.207118415Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-04-07T21:28:19.344429018Z[GMT]")
 
 public class TimeSlotDTO {
   @SerializedName("date")
@@ -44,8 +44,14 @@ public class TimeSlotDTO {
   @SerializedName("personId")
   private Integer personId = null;
 
+  @SerializedName("projectId")
+  private Integer projectId = null;
+
   @SerializedName("fullName")
   private String fullName = null;
+
+  @SerializedName("projectName")
+  private String projectName = null;
 
   public TimeSlotDTO date(LocalDate date) {
     this.date = date;
@@ -56,7 +62,7 @@ public class TimeSlotDTO {
    * Get date
    * @return date
   **/
-  @Schema(description = "")
+  @Schema(required = true, description = "")
   public LocalDate getDate() {
     return date;
   }
@@ -74,7 +80,7 @@ public class TimeSlotDTO {
    * Get startTime
    * @return startTime
   **/
-  @Schema(description = "")
+  @Schema(required = true, description = "")
   public org.joda.time.* getStartTime() {
     return startTime;
   }
@@ -92,7 +98,7 @@ public class TimeSlotDTO {
    * Get endTime
    * @return endTime
   **/
-  @Schema(description = "")
+  @Schema(required = true, description = "")
   public org.joda.time.* getEndTime() {
     return endTime;
   }
@@ -137,6 +143,24 @@ public class TimeSlotDTO {
     this.personId = personId;
   }
 
+  public TimeSlotDTO projectId(Integer projectId) {
+    this.projectId = projectId;
+    return this;
+  }
+
+   /**
+   * Get projectId
+   * @return projectId
+  **/
+  @Schema(description = "")
+  public Integer getProjectId() {
+    return projectId;
+  }
+
+  public void setProjectId(Integer projectId) {
+    this.projectId = projectId;
+  }
+
   public TimeSlotDTO fullName(String fullName) {
     this.fullName = fullName;
     return this;
@@ -155,6 +179,24 @@ public class TimeSlotDTO {
     this.fullName = fullName;
   }
 
+  public TimeSlotDTO projectName(String projectName) {
+    this.projectName = projectName;
+    return this;
+  }
+
+   /**
+   * Get projectName
+   * @return projectName
+  **/
+  @Schema(description = "")
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -170,12 +212,14 @@ public class TimeSlotDTO {
         Objects.equals(this.endTime, timeSlotDTO.endTime) &&
         Objects.equals(this.description, timeSlotDTO.description) &&
         Objects.equals(this.personId, timeSlotDTO.personId) &&
-        Objects.equals(this.fullName, timeSlotDTO.fullName);
+        Objects.equals(this.projectId, timeSlotDTO.projectId) &&
+        Objects.equals(this.fullName, timeSlotDTO.fullName) &&
+        Objects.equals(this.projectName, timeSlotDTO.projectName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(date, startTime, endTime, description, personId, fullName);
+    return Objects.hash(date, startTime, endTime, description, personId, projectId, fullName, projectName);
   }
 
 
@@ -189,7 +233,9 @@ public class TimeSlotDTO {
     sb.append("    endTime: ").append(toIndentedString(endTime)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    personId: ").append(toIndentedString(personId)).append("\n");
+    sb.append("    projectId: ").append(toIndentedString(projectId)).append("\n");
     sb.append("    fullName: ").append(toIndentedString(fullName)).append("\n");
+    sb.append("    projectName: ").append(toIndentedString(projectName)).append("\n");
     sb.append("}");
     return sb.toString();
   }

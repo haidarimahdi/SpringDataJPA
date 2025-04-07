@@ -3,7 +3,8 @@ import io.swagger.client.api.TimeSlotJsonControllerApi;
 import io.swagger.client.model.TimeSlotDTO;
 import io.swagger.client.model.TimeSlotDetailDTO;
 
-import org.threeten.bp.LocalDate;
+//import org.threeten.bp.LocalDate;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 

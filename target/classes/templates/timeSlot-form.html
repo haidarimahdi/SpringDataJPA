@@ -15,6 +15,12 @@
 <main>
   <h2>Create Time Slot</h2>
   <form th:action="@{/timeSlot/new}" method="post" th:object="${timeSlotDTO}">
+    <label for="project">Project:</label>
+    <select id="project" th:field="*{projectId}" required>
+      <option value="" disabled selected>Select a project</option>
+      <option th:each="project : ${projects}" th:value="${project.id}" th:text="${project.name}"></option>
+    </select>
+    <br>
     <label for="person">Person:</label>
     <select id="person" th:field="*{personId}" required>
       <option value="" disabled selected>Select a person</option>

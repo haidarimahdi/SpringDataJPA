@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Header</title>
+    <style>
+        nav ul { list-style: none; padding: 0; }
+        nav ul li { display: inline; margin-right: 15px; }
+    </style>
 </head>
 <body>
 <header th:fragment="header">
@@ -12,6 +16,7 @@
             <li><a href="/">Home</a></li>
             <li><a href="/person/">People</a></li>
             <li><a href="/timeSlot/">Time slots</a></li>
+            <li><a href="/project/">Projects</a></li>
         </ul>
     </nav>
 </header>

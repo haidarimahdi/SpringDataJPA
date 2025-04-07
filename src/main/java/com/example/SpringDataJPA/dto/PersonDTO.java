@@ -1,5 +1,10 @@
 package com.example.SpringDataJPA.dto;
 
+/**
+ * Data Transfer Object (DTO) for Person entity.
+ * This class is used to transfer data between the service layer and the controller layer.
+ * It contains the person's first name and last name.
+ */
 public class PersonDTO {
 
     private String firstName;

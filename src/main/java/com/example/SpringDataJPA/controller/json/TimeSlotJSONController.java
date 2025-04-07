@@ -5,6 +5,9 @@ import com.example.SpringDataJPA.dto.TimeSlotDetailDTO;
 import com.example.SpringDataJPA.model.TimeSlot;
 import com.example.SpringDataJPA.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,8 @@ import java.util.Optional;
 
 /**
  * REST controller for managing TimeSlot entities in JSON format.
+ * This class provides endpoints for creating, updating, deleting,
+ * and retrieving time slot details in JSON format.
  */
 @RestController
 @RequestMapping("/timeSlot")
@@ -34,6 +39,16 @@ public class TimeSlotJSONController {
 
 
     /**
+     * Get a paginated list of all time slots in JSON format.
+     */
+    @GetMapping(value = "/list.json", produces = "application/json")
+    public ResponseEntity<Page<TimeSlot>> getAllTimeSlotsJSONPaginated(
+            @PageableDefault(size = 20, sort = "date") Pageable pageable) {
+        Page<TimeSlot> pageResult = timeSlotService.getAllTimeSlotsPaginated(pageable);
+        return ResponseEntity.ok(pageResult);
+    }
+
+    /**
      * Get the details of a time slot by ID in JSON format.
      *
      * @param id the ID of the time slot
@@ -50,6 +65,18 @@ public class TimeSlotJSONController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * Get a paginated list of time slots for a specific project in JSON format.
+     */
+    @GetMapping(value = "/project/{projectId}.json", produces = "application/json")
+    public ResponseEntity<Page<TimeSlot>> getProjectTimeSlotsJSONPaginated(
+            @PathVariable Integer projectId,
+            @PageableDefault(size = 20, sort = "date") Pageable pageable) {
+        Page<TimeSlot> pageResult = timeSlotService.getTimeSlotsByProjectId(projectId, pageable);
+        return ResponseEntity.ok(pageResult);
+    }
+
 
     /**
      * Create a new time slot from the provided TimeSlotDTO.

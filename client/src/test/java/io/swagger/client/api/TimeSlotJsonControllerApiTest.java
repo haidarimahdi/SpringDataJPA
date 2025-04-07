@@ -12,6 +12,8 @@
 
 package io.swagger.client.api;
 
+import io.swagger.client.model.PageTimeSlot;
+import io.swagger.client.model.Pageable;
 import io.swagger.client.model.TimeSlotDTO;
 import io.swagger.client.model.TimeSlotDetailDTO;
 import org.junit.Test;
@@ -59,6 +61,37 @@ public class TimeSlotJsonControllerApiTest {
     public void deleteTimeSlotJSONTest() throws Exception {
         Integer id = null;
         api.deleteTimeSlotJSON(id);
+
+        // TODO: test validations
+    }
+    /**
+     * 
+     *
+     * 
+     *
+     * @throws Exception
+     *          if the Api call fails
+     */
+    @Test
+    public void getAllTimeSlotsJSONPaginatedTest() throws Exception {
+        Pageable pageable = null;
+        PageTimeSlot response = api.getAllTimeSlotsJSONPaginated(pageable);
+
+        // TODO: test validations
+    }
+    /**
+     * 
+     *
+     * 
+     *
+     * @throws Exception
+     *          if the Api call fails
+     */
+    @Test
+    public void getProjectTimeSlotsJSONPaginatedTest() throws Exception {
+        Integer projectId = null;
+        Pageable pageable = null;
+        PageTimeSlot response = api.getProjectTimeSlotsJSONPaginated(projectId, pageable);
 
         // TODO: test validations
     }

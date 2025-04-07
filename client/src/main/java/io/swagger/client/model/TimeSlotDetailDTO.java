@@ -26,7 +26,7 @@ import org.threeten.bp.LocalDate;
  * TimeSlotDetailDTO
  */
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-03-31T00:35:36.207118415Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2025-04-07T21:28:19.344429018Z[GMT]")
 
 public class TimeSlotDetailDTO {
   @SerializedName("id")
@@ -40,6 +40,9 @@ public class TimeSlotDetailDTO {
 
   @SerializedName("endTime")
   private org.joda.time.* endTime = null;
+
+  @SerializedName("description")
+  private String description = null;
 
   @SerializedName("personId")
   private Integer personId = null;
@@ -116,6 +119,24 @@ public class TimeSlotDetailDTO {
     this.endTime = endTime;
   }
 
+  public TimeSlotDetailDTO description(String description) {
+    this.description = description;
+    return this;
+  }
+
+   /**
+   * Get description
+   * @return description
+  **/
+  @Schema(description = "")
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
   public TimeSlotDetailDTO personId(Integer personId) {
     this.personId = personId;
     return this;
@@ -148,12 +169,13 @@ public class TimeSlotDetailDTO {
         Objects.equals(this.date, timeSlotDetailDTO.date) &&
         Objects.equals(this.startTime, timeSlotDetailDTO.startTime) &&
         Objects.equals(this.endTime, timeSlotDetailDTO.endTime) &&
+        Objects.equals(this.description, timeSlotDetailDTO.description) &&
         Objects.equals(this.personId, timeSlotDetailDTO.personId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, date, startTime, endTime, personId);
+    return Objects.hash(id, date, startTime, endTime, description, personId);
   }
 
 
@@ -166,6 +188,7 @@ public class TimeSlotDetailDTO {
     sb.append("    date: ").append(toIndentedString(date)).append("\n");
     sb.append("    startTime: ").append(toIndentedString(startTime)).append("\n");
     sb.append("    endTime: ").append(toIndentedString(endTime)).append("\n");
+    sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    personId: ").append(toIndentedString(personId)).append("\n");
     sb.append("}");
     return sb.toString();
