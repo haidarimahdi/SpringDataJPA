@@ -23,10 +23,10 @@
   </ul>
   <div class="summary-section">
     <h3>Project Time Summary</h3>
-    <div th:if="${#lists.isEmpty(projectSummary)}">
-      <p>No project time recorded for this person.</p>
-    </div>
-    <table th:unless="${#lists.isEmpty(projectSummary)}">
+<!--    <div th:if="${#lists.isEmpty(projectSummary)}">-->
+<!--      <p>No projects assigned for this person.</p>-->
+<!--    </div>-->
+    <table >
       <thead>
       <tr>
         <th>Project Name</th>
@@ -40,8 +40,8 @@
           <a th:href="@{'/project/' + ${summary.projectId}}"
              th:text="${summary.projectName}">Project Name</a>
         </td>
-        <td th:text="${summary.formattedDuration}">e.g., 3 hours, 0 minutes</td>
-        <td th:text="${summary.formattedPercentage}">e.g., 75.00%</td>
+        <td th:text="${summary.formattedDuration}">e.g., 0 hours, 0 minutes</td>
+        <td th:text="${summary.formattedPercentage}">e.g., 0.00%</td>
       </tr>
       </tbody>
     </table>

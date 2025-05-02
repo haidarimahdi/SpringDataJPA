@@ -59,6 +59,7 @@ public class PersonService {
 
         if (personOptional.isPresent()) {
             Person person = personOptional.get();
+            person.getProjects().forEach(project -> project.getPersons().remove(person));
             for (TimeSlot timeSlot : person.getTimeslots()) {
                 timeSlotRepository.delete(timeSlot);
             }
@@ -78,16 +79,13 @@ public class PersonService {
     public List<ProjectTimeSummaryDTO> getProjectTimeSummary(Integer personId) {
         Person person = findPersonById(personId);
         Set<TimeSlot> timeSlots = person.getTimeslots();
-
-        if (timeSlots == null || timeSlots.isEmpty()) {
-            return Collections.emptyList();
-        }
+        Set<Project> allProjects = person.getProjects();
 
         Map<Project, Long> secondsPerProject = calculateDurationPerProject(timeSlots);
         long totalSecondsOverall = secondsPerProject.values().stream().mapToLong(Long::longValue).sum();
 
-        if (totalSecondsOverall == 0) {
-            return Collections.emptyList();
+        for (Project project : allProjects) {
+            secondsPerProject.putIfAbsent(project, 0L);
         }
 
         return createSummaryList(secondsPerProject, totalSecondsOverall);
@@ -113,16 +111,12 @@ public class PersonService {
 
     private List<ProjectTimeSummaryDTO> createSummaryList(Map<Project, Long> secondsPerProject, long totalSecondsOverall) {
         List<ProjectTimeSummaryDTO> summaryList = new ArrayList<>();
-        secondsPerProject.forEach((project, projectSeconds) -> {
-            double percentage = (double) projectSeconds / totalSecondsOverall * 100.0;
-            summaryList.add(new ProjectTimeSummaryDTO(
-                    project.getId(),
-                    project.getName(),
-                    projectSeconds,
-                    percentage
-            ));
-        });
-        summaryList.sort(Comparator.comparingDouble(ProjectTimeSummaryDTO::percentage).reversed());
+        for (Map.Entry<Project, Long> entry : secondsPerProject.entrySet()) {
+            Project project = entry.getKey();
+            long seconds = entry.getValue();
+            double percentage = totalSecondsOverall > 0 ? (seconds * 100.0) / totalSecondsOverall : 0.0;
+            summaryList.add(new ProjectTimeSummaryDTO(project.getId(), project.getName(), seconds, percentage));
+        }
         return summaryList;
     }
 

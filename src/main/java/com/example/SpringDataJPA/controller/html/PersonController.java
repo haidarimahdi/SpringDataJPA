@@ -36,10 +36,11 @@ public class PersonController {
         if (personOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "No Person Found with id: " + id);
         }
-        Person person = personRepository.findById(id).get();
+        Person person = personOptional.get();
+        List<ProjectTimeSummaryDTO> projectSummary = personService.getProjectTimeSummary(id);
+
         model.addAttribute("person", person);
         model.addAttribute("slots", person.getTimeslots());
-        List<ProjectTimeSummaryDTO> projectSummary = personService.getProjectTimeSummary(id);
         model.addAttribute("projectSummary", projectSummary);
 
         return "person-details";

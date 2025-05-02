@@ -33,6 +33,19 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
             """, nativeQuery = true)
     List<PersonWithHours> calculateHours();
 
+
+    /**
+     * Retrieves a person by id
+     * @param personId the id of the person
+     * @return the person with all timeSlots
+     */
+    @Query("""
+            SELECT p FROM Person p
+                        WHERE p.id = :personId
+            """)
+    List<Person> findById(Long personId);
+
+
     /**
      * Interface for combining the count of timeSlots a person has booked together with the first and last name of
      * the person.

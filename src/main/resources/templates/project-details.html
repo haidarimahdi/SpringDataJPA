@@ -27,6 +27,7 @@
   <h3>Assigned Persons and Their Time Slots for this Project</h3>
   <div th:if="${#lists.isEmpty(projectDetails.assignedPersons)}">
     <p>No persons assigned to this project yet.</p>
+<!--    <a th:href="@{/person/new}" class="add-person">Add Person(s)</a>-->
   </div>
 
   <div th:each="assignedPerson : ${projectDetails.assignedPersons}" class="person-details">
@@ -43,6 +44,8 @@
 
     <div th:if="${#lists.isEmpty(assignedPerson.projectTimeSlots)}">
       <p>No time slots recorded for this person on this project.</p>
+      <a href="#" th:href="@{/timeSlot/new(personId=${assignedPerson.personId}, projectId=${projectDetails.id})}">
+        Add a Time Slot</a>
     </div>
     <ul th:unless="${#lists.isEmpty(assignedPerson.projectTimeSlots)}" class="timeslot-details">
       <li th:each="timeSlot : ${assignedPerson.projectTimeSlots}">

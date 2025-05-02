@@ -41,5 +41,11 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     Optional<Project> findByIdWithPersonsAndFilteredTimeSlots(@Param("id") Integer id);
 
 
-
+    /**
+     * Retrieves a project by ID.
+     * @param projectId the project ID
+     * @return a list of projects
+    */
+    @Query("SELECT p FROM Project p WHERE p.id = :projectId")
+    List<Project> findById(Long projectId);
 }

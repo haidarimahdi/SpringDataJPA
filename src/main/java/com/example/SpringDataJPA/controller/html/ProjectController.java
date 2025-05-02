@@ -74,7 +74,7 @@ public class ProjectController {
     @PostMapping("/new")
     public String createProject(@ModelAttribute ProjectDTO projectDTO) {
         Project createdProject = projectService.createProject(projectDTO);
-        return "redirect:/project/" + createdProject.getId(); // Redirect to details page
+        return "redirect:/project/";
     }
 
     /**
@@ -91,7 +91,8 @@ public class ProjectController {
             model.addAttribute("projectId", id);
             model.addAttribute("allPersons", personRepository.findAll());
             // Pass currently assigned person IDs to pre-select in the form
-            model.addAttribute("assignedPersonIds", project.getPersons().stream().map(Person::getId).collect(Collectors.toSet()));
+            model.addAttribute("assignedPersonIds",
+                    project.getPersons().stream().map(Person::getId).collect(Collectors.toSet()));
 
             return "project-update";
         } else {

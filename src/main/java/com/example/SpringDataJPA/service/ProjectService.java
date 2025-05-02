@@ -115,6 +115,21 @@ public class ProjectService {
         project.setDescription(projectDTO.getDescription());
         project.setScheduled_effort(projectDTO.getScheduledEffort());
 
+        // Update assigned persons
+        Set<Integer> newPersonIds = projectDTO.getPersonIds();
+        Set<Person> currentPersons = project.getPersons();
+
+        // Remove persons no longer assigned
+        currentPersons.removeIf(person -> !newPersonIds.contains(person.getId()));
+
+        // Add new persons
+        List<Person> newPersons = personRepository.findAllById(newPersonIds);
+        for (Person person : newPersons) {
+            if (!currentPersons.contains(person)) {
+                project.addPerson(person);
+            }
+        }
+
         return projectRepository.save(project);
     }
 

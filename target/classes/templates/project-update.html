@@ -37,7 +37,7 @@
     <label for="personIds">Assigned Persons:</label>
     <div id="personIds" th:each="person : ${allPersons}">
       <input type="checkbox" th:value="${person.id}"
-             th:checked="${#lists.contains(projectDTO.personIds, person.id)}" disabled>
+             th:field="*{personIds}" th:checked="${#lists.contains(projectDTO.personIds, person.id)}">
       <span th:text="${person.firstName} + ' ' + ${person.lastName}"></span>
     </div>
 

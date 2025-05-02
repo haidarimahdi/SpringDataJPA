@@ -11,6 +11,7 @@ import com.example.SpringDataJPA.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -82,9 +83,19 @@ public class TimeSlotController {
      * Provides a list of persons and projects to select from.
      */
     @GetMapping("/new")
-    public String showTimeSlotForm(Model model) {
-        List<Person> persons = personRepository.findAll();
-        List<Project> projects = projectRepository.findAll();
+    public String showTimeSlotForm(@RequestParam(required = false) Long personId,
+                                   @RequestParam(required = false) Long projectId,
+                                   Model model) {
+        List<Person> persons;
+        List<Project> projects;
+
+        if (personId != null && projectId != null) {
+            persons = personRepository.findById(personId);
+            projects = projectRepository.findById(projectId);
+        } else {
+            persons = personRepository.findAll();
+            projects = projectRepository.findAll();
+        }
 
         model.addAttribute("persons", persons);
         model.addAttribute("projects", projects);
