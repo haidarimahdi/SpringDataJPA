@@ -36,18 +36,33 @@ public class TimeSlotDTO {
     }
 
     /**
-     * Constructor to create a TimeSlotDTO from a TimeSlot entity.
-     * @param timeSlot The TimeSlot entity to be converted into a DTO.
+     * Constructor for TimeSlotDTO.
+     * This constructor is used to create a new TimeSlotDTO object with the specified parameters.
+     * @param date date of the time slot
+     * @param startTime start time of the time slot
+     * @param endTime end time of the time slot
+     * @param description description of the time slot
+     * @param personId ID of the person associated with the time slot
+     * @param projectId ID of the project associated with the time slot
      */
-    public TimeSlotDTO(TimeSlot timeSlot) {
-        this.timeSlot = timeSlot;
-        this.date = timeSlot.getDate();
-        this.startTime = timeSlot.getStartTime();
-        this.endTime = timeSlot.getEndTime();
-        this.description = timeSlot.getDescription();
-        this.personId = (timeSlot.getPerson() != null) ? timeSlot.getPerson().getId() : null;
-        this.projectId = (timeSlot.getProject() != null) ? timeSlot.getProject().getId() : null;
+    public TimeSlotDTO(LocalDate date, LocalTime startTime, LocalTime endTime, String description,
+                       Integer personId, Integer projectId) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.personId = personId;
+        this.projectId = projectId;
     }
+//    public TimeSlotDTO(TimeSlot timeSlot) {
+//        this.timeSlot = timeSlot;
+//        this.date = timeSlot.getDate();
+//        this.startTime = timeSlot.getStartTime();
+//        this.endTime = timeSlot.getEndTime();
+//        this.description = timeSlot.getDescription();
+//        this.personId = (timeSlot.getPerson() != null) ? timeSlot.getPerson().getId() : null;
+//        this.projectId = (timeSlot.getProject() != null) ? timeSlot.getProject().getId() : null;
+//    }
 
     // --- Getters ---
     public LocalDate getDate() {
@@ -68,20 +83,13 @@ public class TimeSlotDTO {
     public Integer getProjectId() {
         return projectId;
     }
-    public String getFullName() {
-        return String.format("%s %s", timeSlot.getPerson().getFirstName(), timeSlot.getPerson().getLastName());
-    }
-
-    public String getProjectName() {
-        return timeSlot.getProject() != null ? timeSlot.getProject().getName() : null;
-    }
 
     // --- Setters ---
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;

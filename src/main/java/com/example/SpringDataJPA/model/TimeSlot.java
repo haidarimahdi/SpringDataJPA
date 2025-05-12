@@ -107,30 +107,4 @@ public class TimeSlot {
         this.project = project;
     }
 
-    @Transient
-    public String getFormattedDuration() {
-        try {
-            Duration duration = Duration.between(startTime, endTime);
-            long hours = duration.toHours();
-            long minutes = duration.toMinutesPart();
-
-            return String.format("%d hours, %d minutes", hours, minutes);
-        } catch (Exception e) {
-            return "Calculation Error on the duration of the time slot";
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "TimeSlot{" +
-                "id=" + id +
-                ", date=" + date +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", description='" + description + '\'' +
-                ", personId=" + (person != null ? person.getId() : null) +
-                ", projectId=" + (project != null ? project.getId() : null) +
-                '}';
-    }
-
 }

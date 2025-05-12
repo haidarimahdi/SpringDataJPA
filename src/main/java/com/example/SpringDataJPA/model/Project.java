@@ -107,6 +107,6 @@ public class Project {
 
     public void removePerson(Person person) {
         this.persons.remove(person);
-        person.getProjects().remove(this); // Maintain both sides
+        person.getProjects().remove(this);
     }
 }

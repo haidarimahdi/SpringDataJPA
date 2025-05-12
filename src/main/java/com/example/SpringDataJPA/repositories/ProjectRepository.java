@@ -25,7 +25,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
      * This is useful for avoiding N+1 problems when accessing time slots.
      * @return a list of projects with their time slots
      */
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.timeSlots")
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.timeSlots ts LEFT JOIN FETCH p.persons")
     List<Project> findAllWithTimeSlots();
 
     /**

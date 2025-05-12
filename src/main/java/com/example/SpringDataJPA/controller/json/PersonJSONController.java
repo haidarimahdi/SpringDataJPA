@@ -2,7 +2,6 @@ package com.example.SpringDataJPA.controller.json;
 
 import com.example.SpringDataJPA.dto.PersonDTO;
 import com.example.SpringDataJPA.dto.PersonDetailDTO;
-import com.example.SpringDataJPA.model.Person;
 import com.example.SpringDataJPA.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,6 +35,17 @@ public class PersonJSONController {
     }
 
     /**
+     * Get a list of all persons (basic info).
+     *
+     * @return ResponseEntity containing a list of PersonDetailDTO
+     */
+    @GetMapping(value = "", produces = "application/json")
+    public ResponseEntity<List<PersonDetailDTO>> getAllPersonsJSON() {
+        List<PersonDetailDTO> people = personService.getAllPeople();
+        return ResponseEntity.ok(people);
+    }
+
+    /**
      * Get the details of a person by ID in JSON format.
      *
      * @param id the ID of the person
@@ -42,14 +53,10 @@ public class PersonJSONController {
      */
     @GetMapping(value = "{id}.json", produces =  "application/json")
     public ResponseEntity<PersonDetailDTO> getPersonDetailJSON(@PathVariable("id") Integer id) {
-        Optional<Person> personOptional = personService.getPersonById(id);
-        if (personOptional.isPresent()) {
-            Person person = personOptional.get();
-            PersonDetailDTO dto = new PersonDetailDTO(person);
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Optional<PersonDetailDTO> personOptional = personService.getPersonById(id);
+        return personOptional
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -60,11 +67,17 @@ public class PersonJSONController {
      */
     @PostMapping(value = "", produces = "application/json")
     public ResponseEntity<PersonDetailDTO> createPersonJSON(@RequestBody PersonDTO personDTO) {
-        Person person = personService.createPerson(personDTO);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}.json")
-                .buildAndExpand(person.getId()).toUri();
+        try {
+            PersonDetailDTO createdPerson = personService.createPerson(personDTO);
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}.json")
+                    .buildAndExpand(createdPerson.getId())
+                    .toUri();
 
-        return ResponseEntity.created(location).body(new PersonDetailDTO(person));
+            return ResponseEntity.created(location).body(createdPerson);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating person: " + e.getMessage());
+        }
     }
 
     /**
@@ -77,11 +90,14 @@ public class PersonJSONController {
     @PostMapping(value = "{id}.json", produces = "application/json")
     public ResponseEntity<PersonDetailDTO> updatePersonJSON(@PathVariable("id") Integer id,
                                                             @RequestBody PersonDTO personDTO) {
-        Person person = personService.updatePerson(id, personDTO);
-        if (person == null) {
-            return ResponseEntity.notFound().build();
+        try {
+            PersonDetailDTO updatedPerson = personService.updatePerson(id, personDTO);
+            return ResponseEntity.ok(updatedPerson);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating person: " + e.getMessage(), e);
         }
-        return ResponseEntity.ok(new PersonDetailDTO(person));
     }
 
     /**
@@ -96,7 +112,7 @@ public class PersonJSONController {
             personService.deletePerson(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }

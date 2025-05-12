@@ -17,17 +17,21 @@
   <p>Total number of time slots: [[${timeSlotPage.totalElements}]]</p>
     <ul>
         <li th:each="timeSlot : ${timeSlotPage.content}">
-            <a th:href="|/timeSlot/${timeSlot.id}|"
+            <a th:href="@{'/timeSlot/' + ${timeSlot.id}}"
                th:text="${timeSlot.date} + ' ' + ${timeSlot.startTime} + ' - ' + ${timeSlot.endTime} +
-                    ' (' + ${timeSlot.description} + ')'">Time Slot Details</a>
-            <span th:if="${timeSlot.person}"> by
-                <a th:href="@{'/person/' + ${timeSlot.person.id}}"
-                   th:text="${timeSlot.person.firstName} + ' ' + ${timeSlot.person.lastName}"></a>
-             </span>
-            <span th:if="${timeSlot.project}"> for
-                <a th:href="@{'/project/' + ${timeSlot.project.id}}"
-                   th:text="${timeSlot.project.name}"></a>
-             </span>
+            ' (' + ${timeSlot.description} + ')'">Time Slot Details
+            </a>
+            <span th:if="${timeSlot.personId != null}"> by
+                <a th:href="@{'/person/' + ${timeSlot.personId}}"
+                   th:text="${timeSlot.person.getFullName}">Person Name
+                </a>
+            </span>
+
+            <span th:if="${timeSlot.projectId != null}"> for
+                <a th:href="@{'/project/' + ${timeSlot.projectId}}"
+                   th:text="${timeSlot.project.name}">Project Name
+                </a>
+            </span>
         </li>
     </ul>
     <a href="#" th:href="@{/timeSlot/new}">New Time Slot</a>

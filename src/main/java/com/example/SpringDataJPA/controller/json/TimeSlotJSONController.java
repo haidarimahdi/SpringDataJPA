@@ -2,7 +2,6 @@ package com.example.SpringDataJPA.controller.json;
 
 import com.example.SpringDataJPA.dto.TimeSlotDTO;
 import com.example.SpringDataJPA.dto.TimeSlotDetailDTO;
-import com.example.SpringDataJPA.model.TimeSlot;
 import com.example.SpringDataJPA.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Optional;
 
 /**
@@ -41,10 +38,10 @@ public class TimeSlotJSONController {
     /**
      * Get a paginated list of all time slots in JSON format.
      */
-    @GetMapping(value = "/list.json", produces = "application/json")
-    public ResponseEntity<Page<TimeSlot>> getAllTimeSlotsJSONPaginated(
+    @GetMapping(value = "", produces = "application/json")
+    public ResponseEntity<Page<TimeSlotDetailDTO>> getAllTimeSlotsJSONPaginated(
             @PageableDefault(size = 20, sort = "date") Pageable pageable) {
-        Page<TimeSlot> pageResult = timeSlotService.getAllTimeSlotsPaginated(pageable);
+        Page<TimeSlotDetailDTO> pageResult = timeSlotService.getAllTimeSlotsPaginated(pageable);
         return ResponseEntity.ok(pageResult);
     }
 
@@ -56,24 +53,19 @@ public class TimeSlotJSONController {
      */
     @GetMapping(value = "{id}.json", produces = "application/json")
     public ResponseEntity<TimeSlotDetailDTO> getTimeSlotDetailJSON(@PathVariable("id") Integer id) {
-        Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
-        if (timeSlotOptional.isPresent()) {
-            TimeSlot timeSlot = timeSlotOptional.get();
-            TimeSlotDetailDTO dto = new TimeSlotDetailDTO(timeSlot);
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Optional<TimeSlotDetailDTO> timeSlotOptional = timeSlotService.getTimeSlotById(id);
+        return timeSlotOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
      * Get a paginated list of time slots for a specific project in JSON format.
      */
     @GetMapping(value = "/project/{projectId}.json", produces = "application/json")
-    public ResponseEntity<Page<TimeSlot>> getProjectTimeSlotsJSONPaginated(
+    public ResponseEntity<Page<TimeSlotDetailDTO>> getProjectTimeSlotsJSONPaginated(
             @PathVariable Integer projectId,
             @PageableDefault(size = 20, sort = "date") Pageable pageable) {
-        Page<TimeSlot> pageResult = timeSlotService.getTimeSlotsByProjectId(projectId, pageable);
+        Page<TimeSlotDetailDTO> pageResult = timeSlotService.getTimeSlotsByProjectId(projectId, pageable);
         return ResponseEntity.ok(pageResult);
     }
 
@@ -86,27 +78,12 @@ public class TimeSlotJSONController {
      */
     @PostMapping(value = "", produces = "application/json")
     public ResponseEntity<TimeSlotDetailDTO> createTimeSlotJSON(@RequestBody TimeSlotDTO timeSlotDTO) {
-        TimeSlot timeSlot = timeSlotService.createTimeSlot(timeSlotDTO);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}.json")
-                .buildAndExpand(timeSlot.getId()).toUri();
-        return ResponseEntity.created(location).body(new TimeSlotDetailDTO(timeSlot));
-    }
-
-    /**
-     * Update an existing time slot by ID with the provided TimeSlotDTO.
-     *
-     * @param id the ID of the time slot to update
-     * @param timeSlotDTO the DTO containing the updated details of the time slot
-     * @return ResponseEntity containing the updated TimeSlotDetailDTO if found, or 404 Not Found status
-     */
-    @PostMapping(value = "{id}.json", produces = "application/json")
-    public ResponseEntity<TimeSlotDetailDTO> updateTimeSlotJSON(@PathVariable("id") Integer id,
-                                                                @RequestBody TimeSlotDTO timeSlotDTO) {
-        TimeSlot timeSlot = timeSlotService.updateTimeSlot(id, timeSlotDTO);
-        if (timeSlot == null) {
-            return ResponseEntity.notFound().build();
+        try {
+            TimeSlotDetailDTO updatedTimeSlot = timeSlotService.createTimeSlot(timeSlotDTO);
+            return ResponseEntity.ok(updatedTimeSlot);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
-        return ResponseEntity.ok(new TimeSlotDetailDTO(timeSlot));
     }
 
     /**
@@ -121,7 +98,7 @@ public class TimeSlotJSONController {
             timeSlotService.deleteTimeSlot(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }

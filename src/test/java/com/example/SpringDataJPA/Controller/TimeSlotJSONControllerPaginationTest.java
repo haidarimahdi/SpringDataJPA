@@ -2,6 +2,7 @@ package com.example.SpringDataJPA.Controller;
 
 import com.example.SpringDataJPA.controller.html.TimeSlotController;
 import com.example.SpringDataJPA.controller.json.TimeSlotJSONController;
+import com.example.SpringDataJPA.dto.TimeSlotDetailDTO;
 import com.example.SpringDataJPA.model.TimeSlot;
 import com.example.SpringDataJPA.service.TimeSlotService;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,13 +40,20 @@ public class TimeSlotJSONControllerPaginationTest {
     void testGetAllTimeSlotsJSONPaginated() throws Exception {
         // Arrange: Mock service response
         TimeSlot ts1 = new TimeSlot(LocalDate.now(), LocalTime.of(9, 0), LocalTime.of(17, 0), "Description 1", null, null);
-        TimeSlot ts2 = new TimeSlot(LocalDate.now().minusDays(1), LocalTime.of(9, 0), LocalTime.of(17, 0), "Description 2", null, null);
-        List<TimeSlot> timeSlots = Arrays.asList(ts1, ts2);
+        ts1.setId(1);
+        TimeSlot ts2 =  new TimeSlot(LocalDate.now().minusDays(1), LocalTime.of(9, 0), LocalTime.of(17, 0), "Description 2", null, null);
+        ts2.setId(2);
+
+        TimeSlotDetailDTO tsDto1 = new TimeSlotDetailDTO(ts1);
+        TimeSlotDetailDTO tsDto2 = new TimeSlotDetailDTO(ts2);
+
+        List<TimeSlotDetailDTO> timeSlotsDetailDtos = Arrays.asList(tsDto1, tsDto2);
         // Create a Page object to return from the mock service
         // PageRequest: page 0, size 2. PageImpl: content, pageable, total elements
-        Page<TimeSlot> mockPage = new PageImpl<>(timeSlots, PageRequest.of(0, 2), 5);
+        Pageable pageRequest = PageRequest.of(0, 2);
+        Page<TimeSlotDetailDTO> mockDtoPage = new PageImpl<>(timeSlotsDetailDtos, pageRequest, 5);
 
-        when(timeSlotService.getAllTimeSlotsPaginated(any(Pageable.class))).thenReturn(mockPage);
+        when(timeSlotService.getAllTimeSlotsPaginated(any(Pageable.class))).thenReturn(mockDtoPage);
 
         // Act & Assert: Perform GET request and check JSON response
         mockMvc.perform(get("/timeSlot/list.json")
@@ -60,7 +69,7 @@ public class TimeSlotJSONControllerPaginationTest {
                 .andExpect(jsonPath("$.size", is(2)));
     }
 
-    // Add similar tests for getProjectTimeSlotsJSONPaginated(...)
+    // Add tests for getProjectTimeSlotsJSONPaginated(...)
 
 }
 
@@ -73,10 +82,11 @@ class TimeSlotControllerPaginationTest {
     @Test
     void testShowAllTimeSlotsHTMLPaginated() throws Exception {
         // Arrange
-        TimeSlot ts1 = new TimeSlot(LocalDate.now(), LocalTime.of(9, 0), LocalTime.of(17, 0), "Description 1", null, null);
-        List<TimeSlot> timeSlots = List.of(ts1);
-        Page<TimeSlot> mockPage = new PageImpl<>(timeSlots, PageRequest.of(0, 5), 1);
-        when(timeSlotService.getAllTimeSlotsPaginated(any(Pageable.class))).thenReturn(mockPage);
+        TimeSlotDetailDTO tsDto1 = new TimeSlotDetailDTO(1, LocalDate.now(), LocalTime.of(9, 0),
+                LocalTime.of(17, 0), "Html Test Slot 1", null);
+        List<TimeSlotDetailDTO> timeSlotDetailDTOs = List.of(tsDto1);
+        Page<TimeSlotDetailDTO> mockDtoPage = new PageImpl<>(timeSlotDetailDTOs, PageRequest.of(0, 5), 1);
+        when(timeSlotService.getAllTimeSlotsPaginated(any(Pageable.class))).thenReturn(mockDtoPage);
 
         // Act & Assert
         mockMvc.perform(get("/timeSlot/")
@@ -86,9 +96,9 @@ class TimeSlotControllerPaginationTest {
                 .andExpect(view().name("timeSlot-index")) // Check correct template is returned
                 .andExpect(model().attributeExists("timeSlotPage")) // Check model contains the page
                 .andExpect(model().attribute("timeSlotPage", hasProperty("totalElements", is(1L))))
-                .andExpect(model().attribute("timeSlotPage", hasProperty("content", hasSize(1))));
-        // Optionally use HtmlUnit or similar to assert rendered HTML content
+                .andExpect(model().attribute("timeSlotPage", hasProperty("content", hasSize(1))))
+                .andExpect(model().attribute("timeSlotPage", hasProperty("content",
+                contains(hasProperty("description", is("Html Test Slot 1"))))));
     }
 
-    // Add similar tests for showProjectTimeSlots(...)
 }

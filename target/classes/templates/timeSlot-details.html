@@ -15,22 +15,25 @@
     <p>Description: [[${timeSlot.description}]]</p>
 
     <p><strong>Person:</strong>
-        <span th:if="${timeSlot.person != null}">
-            <a th:href="@{'/person/' + ${timeSlot.person.id}}"
-               th:text="${timeSlot.person.getFirstName()} + ' ' + ${timeSlot.person.getLastName()}">Person Name</a></span>
+        <span th:if="${timeSlot.personId != null}">
+            <a th:href="@{'/person/' + ${timeSlot.personId}}"
+               th:text="${timeSlot.person.getFullName()}">Person Name
+            </a>
+        </span>
         <span th:if="${timeSlot.person == null}">N/A</span>
     </p>
 
     <p><strong>Project:</strong>
-        <a th:if="${timeSlot.project != null}"
-           th:href="@{'/project/' + ${timeSlot.project.id}}"
-           th:text="${timeSlot.project.name}">Project Name</a>
+        <span th:if="${timeSlot.projectId != null}">
+           <a th:href="@{'/project/' + ${timeSlot.projectId}}"
+           th:text="${timeSlot.project.getName()}">Project Name
+           </a>
+        </span>
         <span th:if="${timeSlot.project == null}">N/A</span>
     </p>
 
-    <p><strong>Duration:</strong> <span th:text="${timeSlot.formattedDuration}">Duration</span></p>
+    <p><strong>Duration:</strong> <span th:text="${timeSlot.getFormattedDuration()}">Duration</span></p>
     <hr/>
-<!--    <a href="#" th:href="@{'/timeSlot/update/' + ${timeSlot.id}}">Update Time Slot</a>-->
     <br>
     <form th:action="@{'/timeSlot/delete/' + ${timeSlot.id}}" method="post"
           onsubmit="return confirm('Are you sure you want to delete this time slot?');">

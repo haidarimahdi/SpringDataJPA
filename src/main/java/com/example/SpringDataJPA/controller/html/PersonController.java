@@ -1,9 +1,8 @@
 package com.example.SpringDataJPA.controller.html;
 
 import com.example.SpringDataJPA.dto.PersonDTO;
+import com.example.SpringDataJPA.dto.PersonDetailDTO;
 import com.example.SpringDataJPA.dto.ProjectTimeSummaryDTO;
-import com.example.SpringDataJPA.model.Person;
-import com.example.SpringDataJPA.repositories.PersonRepository;
 import com.example.SpringDataJPA.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,38 +18,54 @@ import java.util.Optional;
 @RequestMapping("/person")
 public class PersonController {
 
-    @Autowired
-    private PersonRepository personRepository;
-    @Autowired
-    private PersonService personService;
+    private final PersonService personService;
 
+    @Autowired
+    public PersonController(PersonService personService) {
+        this.personService = personService;
+    }
+
+    /**
+     * Show the list of all persons using PersonDetailDTO.
+     */
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("people", personRepository.findAll());
+        List<PersonDetailDTO> peopleDetails = personService.getAllPeople();
+        model.addAttribute("people", peopleDetails);
         return "person-index";
     }
 
+    /**
+     * Show details for a specific person, including their timeslots and project summary, using PersonDetailDTO.
+     */
     @GetMapping("/{id}")
     public String personDetails(Model model, @PathVariable int id) {
-        Optional<Person> personOptional = personRepository.findById(id);
-        if (personOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  "No Person Found with id: " + id);
+        Optional<PersonDetailDTO> personDetailOpt = personService.getPersonById(id);
+        if (personDetailOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found with id: " + id);
         }
-        Person person = personOptional.get();
-        List<ProjectTimeSummaryDTO> projectSummary = personService.getProjectTimeSummary(id);
+        PersonDetailDTO personDetail = personDetailOpt.get();
+        model.addAttribute("person", personDetail);
 
-        model.addAttribute("person", person);
-        model.addAttribute("slots", person.getTimeslots());
+        List<ProjectTimeSummaryDTO> projectSummary = personService.getProjectTimeSummary(id);
         model.addAttribute("projectSummary", projectSummary);
+
+        model.addAttribute("slots", personDetail.getTimeSlots());
 
         return "person-details";
     }
 
+    /**
+     * Show form for creating a new person.
+     * This method initializes a new PersonDTO object and adds it to the model.
+     * The form is displayed for the user to fill in the details.
+     */
     @GetMapping("/new")
     public String showPersonForm(Model model) {
         model.addAttribute("personDTO", new PersonDTO());
         return "person-form";
     }
+
 
     @PostMapping("/new")
     public String createPerson(@ModelAttribute PersonDTO personDTO) {
@@ -60,10 +75,11 @@ public class PersonController {
 
     @GetMapping("/update/{id}")
     public String showPersonUpdate(Model model, @PathVariable Integer id) {
-        Optional<Person> personOptional = personService.getPersonById(id);
-        if (personOptional.isPresent()) {
-            Person person = personOptional.get();
-            PersonDTO personDTO = new PersonDTO(person.getFirstName(), person.getLastName());
+        Optional<PersonDetailDTO> person = personService.getPersonById(id);
+        if (!person.isEmpty()) {
+            PersonDetailDTO personDetail = person.get();
+            PersonDTO personDTO = new PersonDTO(personDetail.getFirstName(), personDetail.getLastName());
+
             model.addAttribute("personDTO", personDTO);
             model.addAttribute("personId", id);
             return "person-update";

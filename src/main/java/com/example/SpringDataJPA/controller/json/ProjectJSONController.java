@@ -3,7 +3,6 @@ package com.example.SpringDataJPA.controller.json;
 import com.example.SpringDataJPA.dto.ProjectDTO;
 import com.example.SpringDataJPA.dto.ProjectDetailDTO;
 import com.example.SpringDataJPA.dto.ProjectListDTO;
-import com.example.SpringDataJPA.model.Project;
 import com.example.SpringDataJPA.service.ProjectService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ public class ProjectJSONController {
     /**
      * Get a list of all projects (basic info).
      */
-    @GetMapping(value = "/list.json", produces = "application/json")
+    @GetMapping(value = "", produces = "application/json")
     public ResponseEntity<List<ProjectListDTO>> getAllProjectsJSON() {
         List<ProjectListDTO> projectsData = projectService.getProjectOverviewData();
         return ResponseEntity.ok(projectsData);
@@ -49,11 +48,11 @@ public class ProjectJSONController {
      */
     @GetMapping(value = "{id}.json", produces = "application/json")
     public ResponseEntity<ProjectDetailDTO> getProjectDetailJSON(@PathVariable("id") Integer id) {
-        ProjectDetailDTO dto = projectService.getProjectDetails(id);
-        if (dto != null) {
+        try {
+            ProjectDetailDTO dto = projectService.getProjectDetails(id);
             return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
@@ -66,15 +65,17 @@ public class ProjectJSONController {
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ProjectDetailDTO> createProjectJSON(@RequestBody ProjectDTO projectDTO) {
         try {
-            Project createdProject = projectService.createProject(projectDTO);
-            ProjectDetailDTO responseDTO = projectService.getProjectDetails(createdProject.getId());
+            ProjectDetailDTO createdProjectDto = projectService.createProject(projectDTO);
 
             URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}.json")
-                    .buildAndExpand(createdProject.getId()).toUri();
+                    .buildAndExpand(createdProjectDto.getId()).toUri();
 
-            return ResponseEntity.created(location).body(responseDTO);
+            return ResponseEntity.created(location).body(createdProjectDto);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating project: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error creating project: " + e.getMessage(), e);
         }
     }
 
@@ -89,16 +90,13 @@ public class ProjectJSONController {
     public ResponseEntity<ProjectDetailDTO> updateProjectJSON(@PathVariable("id") Integer id,
                                                               @RequestBody ProjectDTO projectDTO) {
         try {
-            Project updatedProject = projectService.updateProject(id, projectDTO);
-            if (updatedProject == null) {
-                return ResponseEntity.notFound().build();
-            }
-            ProjectDetailDTO responseDTO = projectService.getProjectDetails(updatedProject.getId());
-            return ResponseEntity.ok(responseDTO);
+            ProjectDetailDTO updatedProjectDto = projectService.updateProject(id, projectDTO);
+            return ResponseEntity.ok(updatedProjectDto);
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating project: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error updating project: " + e.getMessage(), e);
         }
     }
 
@@ -114,39 +112,8 @@ public class ProjectJSONController {
             projectService.deleteProject(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
-//========================== Not asked in the assignment task ==================
-//    /**
-//     * Assign a Person to a Project.
-//     * @param projectId ID of the project
-//     * @param personId ID of the person
-//     */
-//    @PostMapping(value = "/{projectId}/assignPerson/{personId}")
-//    public ResponseEntity<Void> assignPersonToProject(@PathVariable Integer projectId, @PathVariable Integer personId) {
-//        try {
-//            projectService.assignPersonToProject(projectId, personId);
-//            return ResponseEntity.ok().build();
-//        } catch (IllegalArgumentException e) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-//        }
-//    }
-//
-//    /**
-//     * Remove a Person from a Project.
-//     * @param projectId ID of the project
-//     * @param personId ID of the person
-//     */
-//    @DeleteMapping(value = "/{projectId}/removePerson/{personId}")
-//    public ResponseEntity<Void> removePersonFromProject(@PathVariable Integer projectId, @PathVariable Integer personId) {
-//        try {
-//            projectService.removePersonFromProject(projectId, personId);
-//            return ResponseEntity.noContent().build();
-//        } catch (IllegalArgumentException e) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-//        }
-//    }
-
 }
 

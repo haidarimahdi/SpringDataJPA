@@ -1,6 +1,7 @@
 package com.example.SpringDataJPA.service;
 
 import com.example.SpringDataJPA.dto.TimeSlotDTO;
+import com.example.SpringDataJPA.dto.TimeSlotDetailDTO;
 import com.example.SpringDataJPA.model.Person;
 import com.example.SpringDataJPA.model.Project;
 import com.example.SpringDataJPA.model.TimeSlot;
@@ -15,7 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+/**
+ * Service class for managing TimeSlot entities.
+ * This class provides methods to create, update, delete, and retrieve TimeSlot entities,
+ * as well as to manage the relationships between TimeSlots, Persons, and Projects.
+ *
+ * This class is annotated with @Component, making it a Spring-managed bean.
+ * It is also annotated with @Transactional, indicating that methods in this class
+ * should be executed within a transaction context.
+ */
 @Component
 public class TimeSlotService {
 
@@ -32,44 +43,48 @@ public class TimeSlotService {
     }
 
     /**
-     * Get a paginated list of all TimeSlots.
+     * Get a paginated list of all TimeSlots as DTOs.
      * @param pageable Pagination information (page, size, sort)
-     * @return A Page of TimeSlot entities.
+     * @return A Page of TimeSlotDetailDTO entities.
      */
     @Transactional(readOnly = true)
-    public Page<TimeSlot> getAllTimeSlotsPaginated(Pageable pageable) {
-        return timeSlotRepository.findAll(pageable);
+    public Page<TimeSlotDetailDTO> getAllTimeSlotsPaginated(Pageable pageable) {
+        Page<TimeSlot> timeSlotPage = timeSlotRepository.findAll(pageable);
+        return timeSlotPage.map(TimeSlotDetailDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public List<TimeSlot> getAllTimeSlots() {
-        return timeSlotRepository.findAll();
+    public List<TimeSlotDetailDTO> getAllTimeSlots() {
+        return timeSlotRepository.findAll().stream().map(TimeSlotDetailDTO::new)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Get a paginated list of TimeSlots for a specific project.
+     * Get a paginated list of TimeSlots for a specific project as DTOs.
      * @param projectId The ID of the project.
      * @param pageable Pagination information (page, size, sort)
-     * @return A Page of TimeSlot entities for the given project.
+     * @return A Page of TimeSlotDetailDTO entities for the given project.
      */
     @Transactional(readOnly = true)
-    public Page<TimeSlot> getTimeSlotsByProjectId(Integer projectId, Pageable pageable) {
-        return timeSlotRepository.findByProjectId(projectId, pageable);
+    public Page<TimeSlotDetailDTO> getTimeSlotsByProjectId(Integer projectId, Pageable pageable) {
+        Page<TimeSlot> timeSlotPage = timeSlotRepository.findByProjectId(projectId, pageable);
+        return timeSlotPage.map(TimeSlotDetailDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Optional<TimeSlot> getTimeSlotById(int id) {
-        return timeSlotRepository.findById(id);
+    public Optional<TimeSlotDetailDTO> getTimeSlotById(int id) {
+        return timeSlotRepository.findById(id).map(TimeSlotDetailDTO::new);
     }
 
     /**
      * Creates a new TimeSlot associated with a Person and a Project.
+     * Also ensures the Person is added to the Project's list of persons.
      * @param timeSlotDTO DTO containing TimeSlot data including personId and projectId.
-     * @return The saved TimeSlot entity.
+     * @return The saved TimeSlot entity, converted to TimeSlotDetailDTO.
      * @throws IllegalArgumentException if the personId or projectId is invalid.
      */
     @Transactional
-    public TimeSlot createTimeSlot(TimeSlotDTO timeSlotDTO) {
+    public TimeSlotDetailDTO createTimeSlot(TimeSlotDTO timeSlotDTO) {
         Person person = personRepository.findById(timeSlotDTO.getPersonId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid person Id:" + timeSlotDTO.getPersonId()));
 
@@ -83,37 +98,18 @@ public class TimeSlotService {
                 timeSlotDTO.getDescription(),
                 person, project);
 
-        return timeSlotRepository.save(timeSlot);
-    }
-
-    /**
-     * Updates an existing TimeSlot's date, time, and description.
-     * @param id The ID of the TimeSlot to update.
-     * @param timeSlotDTO DTO containing the updated information.
-     * @return The updated TimeSlot entity, or null if not found.
-     */
-    @Transactional
-    public TimeSlot updateTimeSlot(Integer id, TimeSlotDTO timeSlotDTO) {
-        Optional<TimeSlot> timeSlotOptional = timeSlotRepository.findById(id);
-        if (timeSlotOptional.isEmpty()) {
-             throw new IllegalArgumentException("Invalid TimeSlot ID for update: " + id);
+        if (!project.getPersons().contains(person)) {
+            project.addPerson(person);
+            projectRepository.save(project);
         }
-
-        TimeSlot timeSlot = timeSlotOptional.get();
-        timeSlot.setDate(timeSlotDTO.getDate());
-        timeSlot.setStartTime(timeSlotDTO.getStartTime());
-        timeSlot.setEndTime(timeSlotDTO.getEndTime());
-        timeSlot.setDescription(timeSlotDTO.getDescription());
-        timeSlot.setPerson(personRepository.findById(timeSlotDTO.getPersonId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid person Id:" + timeSlotDTO.getPersonId())));
-
-        return timeSlotRepository.save(timeSlot);
+        TimeSlot savedTimeSlot = timeSlotRepository.save(timeSlot);
+        return new TimeSlotDetailDTO(savedTimeSlot);
     }
 
     /**
      * Deletes a TimeSlot by its ID.
      * @param id The ID of the TimeSlot to delete.
-     * @throws IllegalArgumentException if the timeslotId is invalid (optional change).
+     * @throws IllegalArgumentException if the timeslotId is invalid.
      */
     @Transactional
     public void deleteTimeSlot(Integer id) {

@@ -1,12 +1,8 @@
 package com.example.SpringDataJPA.controller.html;
 
-import com.example.SpringDataJPA.dto.ProjectDTO;
-import com.example.SpringDataJPA.dto.ProjectDetailDTO;
-import com.example.SpringDataJPA.dto.ProjectListDTO;
+import com.example.SpringDataJPA.dto.*;
 import com.example.SpringDataJPA.model.Project;
-import com.example.SpringDataJPA.model.Person;
-import com.example.SpringDataJPA.repositories.ProjectRepository;
-import com.example.SpringDataJPA.repositories.PersonRepository;
+import com.example.SpringDataJPA.service.PersonService;
 import com.example.SpringDataJPA.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,25 +12,22 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/project")
 public class ProjectController {
 
-    @Autowired
-    private ProjectService projectService;
+    private final PersonService personService;
+    private final ProjectService projectService;
 
     @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
+    public ProjectController(ProjectService projectService, PersonService personService) {
+        this.projectService = projectService;
+        this.personService = personService;
+    }
 
     /**
-     * Show list of all projects.
+     * Show a list of all projects.
      */
     @GetMapping("/")
     public String showProjectIndex(Model model) {
@@ -49,13 +42,15 @@ public class ProjectController {
      */
     @GetMapping("/{id}")
     public String showProjectDetails(Model model, @PathVariable int id) {
-        ProjectDetailDTO projectDetailDTO = projectService.getProjectDetails(id);
-        if (projectDetailDTO == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id);
-        }
-        model.addAttribute("projectDetails", projectDetailDTO);
+        try {
+            ProjectDetailDTO projectDetailDTO = projectService.getProjectDetails(id);
+            model.addAttribute("projectDetails", projectDetailDTO);
 
-        return "project-details";
+            return "project-details";
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id: " + id, e);
+        }
+
     }
 
     /**
@@ -63,8 +58,9 @@ public class ProjectController {
      */
     @GetMapping("/new")
     public String showProjectForm(Model model) {
-        model.addAttribute("projectDTO", new ProjectDTO()); // DTO for form binding
-        model.addAttribute("allPersons", personRepository.findAll()); // For assigning persons
+        model.addAttribute("projectDTO", new ProjectDTO());
+        List<PersonDetailDTO> allPersons = personService.getAllPeople();
+        model.addAttribute("allPersons", allPersons);
         return "project-form";
     }
 
@@ -73,8 +69,12 @@ public class ProjectController {
      */
     @PostMapping("/new")
     public String createProject(@ModelAttribute ProjectDTO projectDTO) {
-        Project createdProject = projectService.createProject(projectDTO);
-        return "redirect:/project/";
+        try {
+            ProjectDetailDTO createdProject = projectService.createProject(projectDTO);
+            return "redirect:/project/";
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error creating project: " + e.getMessage());
+        }
     }
 
     /**
@@ -82,21 +82,19 @@ public class ProjectController {
      */
     @GetMapping("/update/{id}")
     public String showProjectUpdateForm(Model model, @PathVariable Integer id) {
-        Optional<Project> projectOptional = projectRepository.findById(id);
-        if (projectOptional.isPresent()) {
-            Project project = projectOptional.get();
-            ProjectDTO projectDTO = projectService.mapEntityToDto(project);
-
+        try {
+            ProjectDTO projectDTO = projectService.getProjectDtoForUpdateForm(id);
             model.addAttribute("projectDTO", projectDTO);
             model.addAttribute("projectId", id);
-            model.addAttribute("allPersons", personRepository.findAll());
-            // Pass currently assigned person IDs to pre-select in the form
-            model.addAttribute("assignedPersonIds",
-                    project.getPersons().stream().map(Person::getId).collect(Collectors.toSet()));
+
+            List<PersonDetailDTO> allPersons = personService.getAllPeople();
+            model.addAttribute("allPersons", allPersons);
+            Project project = null;
 
             return "project-update";
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found for update with id: " + id);
+
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found for update with id: " + id, e);
         }
     }
 

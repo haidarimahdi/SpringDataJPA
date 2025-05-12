@@ -1,17 +1,12 @@
 package com.example.SpringDataJPA.controller.html;
 
-import com.example.SpringDataJPA.dto.TimeSlotDTO;
-import com.example.SpringDataJPA.model.Person;
-import com.example.SpringDataJPA.model.Project;
-import com.example.SpringDataJPA.model.TimeSlot;
-import com.example.SpringDataJPA.repositories.PersonRepository;
-import com.example.SpringDataJPA.repositories.ProjectRepository;
-import com.example.SpringDataJPA.repositories.TimeSlotRepository;
+import com.example.SpringDataJPA.dto.*;
+import com.example.SpringDataJPA.service.PersonService;
+import com.example.SpringDataJPA.service.ProjectService;
 import com.example.SpringDataJPA.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -26,53 +21,49 @@ import java.util.Optional;
 @RequestMapping("timeSlot")
 public class TimeSlotController {
 
-//    private final TimeSlotRepository timeSlotRepository;
     private final TimeSlotService timeSlotService;
-    private final PersonRepository personRepository;
-    private final ProjectRepository projectRepository;
+    private final PersonService personService;
+    private final ProjectService projectService;
 
     @Autowired
-    public TimeSlotController(TimeSlotRepository timeSlotRepository, TimeSlotService timeSlotService,
-                              PersonRepository personRepository, ProjectRepository projectRepository) {
-//        this.timeSlotRepository = timeSlotRepository;
+    public TimeSlotController(TimeSlotService timeSlotService, PersonService personService, ProjectService projectService) {
         this.timeSlotService = timeSlotService;
-        this.personRepository = personRepository;
-        this.projectRepository = projectRepository;
+        this.personService = personService;
+        this.projectService = projectService;
     }
 
     /**
-     * Show paginated list of all time slots.
-     * Accepts page, size, sort request parameters automatically via Pageable.
+     * Show a paginated list of all time slots.
      */
     @GetMapping("/")
     public String showAllTimeSlots(Model model, @PageableDefault(size = 10, sort = "date") Pageable pageable) {
-        Page<TimeSlot> timeSlotPage = timeSlotService.getAllTimeSlotsPaginated(pageable);
+        Page<TimeSlotDetailDTO> timeSlotPage = timeSlotService.getAllTimeSlotsPaginated(pageable);
         model.addAttribute("timeSlotPage", timeSlotPage);
+
         return "timeSlot-index";
     }
 
     /**
-     * Show paginated list of time slots for a specific project.
+     * Show details for a specific TimeSlot.
      */
     @GetMapping("/{id}")
     public String showTimeSlotDetails(Model model, @PathVariable("id") Integer id) {
-        Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
-        if (timeSlotOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid TimeSlot ID: " + id);
+        Optional<TimeSlotDetailDTO> timeSlotDetailOpt = timeSlotService.getTimeSlotById(id);
+        if (timeSlotDetailOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TimeSlot not found with id: " + id);
         }
-        TimeSlot timeSlot = timeSlotOptional.get();
 
-        model.addAttribute("timeSlot", timeSlot);
+        model.addAttribute("timeSlot", timeSlotDetailOpt.get());
         return "timeSlot-details";
     }
 
     /**
-     * Show paginated list of time slots for a specific project.
+     * Show a paginated list of time slots for a specific project.
      */
     @GetMapping("/project/{projectId}")
     public String showProjectTimeSlots(@PathVariable Integer projectId, Model model,
                                        @PageableDefault(size = 10, sort = "date") Pageable pageable) {
-        Page<TimeSlot> timeSlotPage = timeSlotService.getTimeSlotsByProjectId(projectId, pageable);
+        Page<TimeSlotDetailDTO> timeSlotPage = timeSlotService.getTimeSlotsByProjectId(projectId, pageable);
         model.addAttribute("timeSlotPage", timeSlotPage);
         model.addAttribute("projectId", projectId); // Pass projectId for pagination links
         return "project-timeSlots";
@@ -83,29 +74,32 @@ public class TimeSlotController {
      * Provides a list of persons and projects to select from.
      */
     @GetMapping("/new")
-    public String showTimeSlotForm(@RequestParam(required = false) Long personId,
-                                   @RequestParam(required = false) Long projectId,
+    public String showTimeSlotForm(@RequestParam(name = "personId", required = false) Integer personIdParam,
+                                   @RequestParam(name = "projectId", required = false) Integer projectIdParam,
                                    Model model) {
-        List<Person> persons;
-        List<Project> projects;
+        List<PersonDetailDTO> persons = personService.getAllPeople();
+        List<ProjectBasicInfoDTO> projects = projectService.getAllProjectsBasicInfo();
 
-        if (personId != null && projectId != null) {
-            persons = personRepository.findById(personId);
-            projects = projectRepository.findById(projectId);
-        } else {
-            persons = personRepository.findAll();
-            projects = projectRepository.findAll();
+        TimeSlotDTO timeSlotDTO = new TimeSlotDTO();
+
+        if (personIdParam != null) {
+            timeSlotDTO.setPersonId(personIdParam);
+        }
+
+        if (projectIdParam != null) {
+            timeSlotDTO.setProjectId(projectIdParam);
         }
 
         model.addAttribute("persons", persons);
         model.addAttribute("projects", projects);
-        model.addAttribute("timeSlotDTO", new TimeSlotDTO());
+        model.addAttribute("timeSlotDTO", timeSlotDTO);
         return "timeSlot-form";
     }
 
     /**
      * Create a new time slot from the provided TimeSlotDTO.
      * Redirects to the list of time slots after creation.
+     * Throws an exception if the time slot data is invalid.
      */
     @PostMapping("/new")
     public String createTimeSlot(@ModelAttribute TimeSlotDTO timeSlotDTO) {
@@ -117,47 +111,19 @@ public class TimeSlotController {
         }
     }
 
+    /**
+     * Delete a time slot by ID.
+     * Redirects to the list of time slots after deletion.
+     * Throws an exception if the time slot ID is invalid.
+     */
     @PostMapping("/delete/{id}")
     public String deleteTimeSlot(@PathVariable Integer id) {
-        Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
-        if (timeSlotOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid timeSlot Id:" + id);
+        try {
+            timeSlotService.deleteTimeSlot(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
-        timeSlotService.deleteTimeSlot(id);
         return "redirect:/timeSlot/";
+
     }
-
-    //================== Not asked in the assignment task ==================
-//    /**
-//     * Show the form to update an existing time slot.
-//     * Provides a list of persons and projects to select from.
-//     */
-//    @GetMapping("/update/{id}")
-//    public String showTimeSlotUpdate(Model model, @PathVariable Integer id) {
-//        Optional<TimeSlot> timeSlotOptional = timeSlotService.getTimeSlotById(id);
-//        if (timeSlotOptional.isPresent()) {
-//            TimeSlot timeSlot = timeSlotOptional.get();
-//            TimeSlotDTO timeSlotDTO = new TimeSlotDTO(timeSlot);
-//
-//            model.addAttribute("timeSlotDTO", timeSlotDTO);
-//            model.addAttribute("persons", personRepository.findAll());
-//            model.addAttribute("timeSlotId", id);
-//
-//            return "timeSlot-update";
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid TimeSlot ID for update: " + id);
-//        }
-//    }
-//
-//    /**
-//     * Update an existing time slot with the provided TimeSlotDTO.
-//     * Redirects to the details page of the updated time slot.
-//     */
-//    @PostMapping("/update/{id}")
-//    public String updateTimeSlot(@PathVariable Integer id, @ModelAttribute TimeSlotDTO timeSlotDTO) {
-//        timeSlotService.updateTimeSlot(id, timeSlotDTO);
-//        return "redirect:/timeSlot/" + id;
-//    }
-//==========================================================================
-
 }
