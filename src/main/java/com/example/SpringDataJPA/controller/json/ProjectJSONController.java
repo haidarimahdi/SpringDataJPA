@@ -68,7 +68,7 @@ public class ProjectJSONController {
             ProjectDetailDTO createdProjectDto = projectService.createProject(projectDTO);
 
             URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}.json")
-                    .buildAndExpand(createdProjectDto.getId()).toUri();
+                    .buildAndExpand(createdProjectDto.id()).toUri();
 
             return ResponseEntity.created(location).body(createdProjectDto);
         } catch (IllegalArgumentException e) {

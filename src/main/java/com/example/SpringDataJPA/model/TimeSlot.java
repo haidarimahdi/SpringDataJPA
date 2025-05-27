@@ -30,6 +30,8 @@ public class TimeSlot {
 
     private String description;
 
+    private Long durationInSeconds; // to store the calculation of duration when needed
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "p_id")
     private Person person;
@@ -50,6 +52,7 @@ public class TimeSlot {
         this.description = description;
         this.person = person;
         this.project = project;
+        this.updateDuration(); // Calculate duration upon creation
     }
 
     public int getId() {
@@ -74,6 +77,7 @@ public class TimeSlot {
 
     public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
+        updateDuration(); // Update duration when start time changes
     }
 
     public LocalTime getEndTime() {
@@ -82,6 +86,7 @@ public class TimeSlot {
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
+        updateDuration(); // Update duration when end time changes
     }
 
     public String getDescription() {
@@ -90,6 +95,14 @@ public class TimeSlot {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getDurationInSeconds() {
+        return durationInSeconds;
+    }
+
+    public void setDurationInSeconds(Long durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
     }
 
     public Person getPerson() {
@@ -105,6 +118,20 @@ public class TimeSlot {
     }
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    /**
+     * Updates the durationInSeconds based on the startTime and endTime.
+     * This method is called whenever the start or end time is set or changed.
+     */
+    private void updateDuration() {
+        if (startTime != null && endTime != null) {
+            this.durationInSeconds = startTime.isBefore(endTime)
+                ? Duration.between(startTime, endTime).toSeconds()
+                : 0L;
+        } else {
+            this.durationInSeconds = null;
+        }
     }
 
 }

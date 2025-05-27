@@ -48,4 +48,8 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     */
     @Query("SELECT p FROM Project p WHERE p.id = :projectId")
     List<Project> findById(Long projectId);
+
+    @Query("SELECT SUM(ts.durationInSeconds) FROM TimeSlot ts WHERE ts.project.id = :projectId AND " +
+            "ts.person MEMBER OF ts.project.persons")
+    Long sumDurationInSecondsForProject(@Param("projectId") Integer projectId);
 }

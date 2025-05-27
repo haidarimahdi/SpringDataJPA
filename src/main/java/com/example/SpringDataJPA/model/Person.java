@@ -83,7 +83,7 @@ public class Person {
         return timeSlots;
     }
 
-    public void setProjects(Project project) {
+    public void addProjects(Project project) {
 
         if (projects == null) {
             projects = new HashSet<Project>();

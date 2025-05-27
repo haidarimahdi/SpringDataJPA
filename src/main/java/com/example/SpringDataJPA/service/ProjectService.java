@@ -3,14 +3,13 @@ package com.example.SpringDataJPA.service;
 import com.example.SpringDataJPA.dto.*;
 import com.example.SpringDataJPA.model.Person;
 import com.example.SpringDataJPA.model.Project;
-import com.example.SpringDataJPA.model.TimeSlot;
 import com.example.SpringDataJPA.repositories.PersonRepository;
 import com.example.SpringDataJPA.repositories.ProjectRepository;
+import com.example.SpringDataJPA.repositories.TimeSlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional; // Import Transactional
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,11 +26,13 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final TimeSlotRepository timeSlotRepository;
     private final PersonRepository personRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, PersonRepository personRepository) {
+    public ProjectService(ProjectRepository projectRepository, TimeSlotRepository timeSlotRepository, PersonRepository personRepository) {
         this.projectRepository = projectRepository;
+        this.timeSlotRepository = timeSlotRepository;
         this.personRepository = personRepository;
     }
 
@@ -55,115 +56,37 @@ public class ProjectService {
         List<Project> projects = projectRepository.findAllWithTimeSlots();
 
         return projects.stream().map(project -> {
-            double totalActualSeconds = calculateTotalActualSecondsForProject(project);
+            Long totalActualSecondsLong = projectRepository.sumDurationInSecondsForProject(project.getId());
+            double totalActualSeconds = totalActualSecondsLong != null ? totalActualSecondsLong.doubleValue() : 0.0;
             double totalActualHours = totalActualSeconds / 3600.0;
             return new ProjectListDTO(project, totalActualHours);
         }).collect(Collectors.toList());
     }
 
     /**
-     * Calculates the total actual seconds for a given project, considering only timeslots
-     * from currently assigned persons.
-     * @param project The project for which to calculate actual hours.
-     * @return The total actual seconds from assigned persons.
+     * Get the total actual hours for a specific project.
+     * @param projectId The ID of the project.
+     * @return The total actual hours for the project.
      */
-    private double calculateTotalActualSecondsForProject(Project project) {
-        double totalActualSeconds = 0;
-        if (project.getTimeSlots() == null || project.getPersons() == null || project.getPersons().isEmpty()) {
-            return totalActualSeconds;
-        }
-
-        Set<Person> currentlyAssignedPersons = project.getPersons();
-
-        for (TimeSlot ts : project.getTimeSlots()) {
-            if(ts.getPerson() != null && currentlyAssignedPersons.contains(ts.getPerson())) {
-                if (ts.getStartTime() != null && ts.getEndTime() != null) {
-                    long durationSeconds = Duration.between(ts.getStartTime(), ts.getEndTime()).toSeconds();
-                    if (durationSeconds > 0) {
-                        totalActualSeconds += durationSeconds;
-                    }
-                }
-            }
-        }
-
-        return totalActualSeconds;
-    }
-
-    /**
-     * Calculates the total seconds each person spent on a specific project.
-     * @param project The project entity.
-     * @return A map where keys are person IDs and values are total seconds spent by that person on the project.
-     */
-    private Map<Integer, Long> calculateSecondsPerPersonForProject(Project project) {
+    private Map<Integer, Long> getTimeSpentPerPersonOnProjectFromDb(Integer projectId) {
+        List<Map<String, Object>> results = timeSlotRepository.sumDurationsPerPersonForProject(projectId);
         Map<Integer, Long> secondsPerPerson = new HashMap<>();
-        if (project.getPersons() == null) {
-            return secondsPerPerson;
-        }
 
-        for (Person person : project.getPersons()) {
-            long personTotalSecondsOnProject = 0;
-            if (person.getTimeslots() != null) {
-                for (TimeSlot timeSlot : person.getTimeslots()) {
-                    if (timeSlot.getProject() != null && timeSlot.getProject().getId().equals(project.getId()) &&
-                            timeSlot.getStartTime() != null && timeSlot.getEndTime() != null) {
-                        long durationSeconds = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toSeconds();
-                        if (durationSeconds > 0) {
-                            personTotalSecondsOnProject += durationSeconds;
-                        }
-                    }
-                }
+        for (Map<String, Object> result : results) {
+            Integer personId = (Integer) result.get("personId");
+            Long totalSeconds = (Long) result.get("totalDuration");
+            if (personId != null && totalSeconds != null) {
+                // Ensure that we only put non-null values into the map
+                secondsPerPerson.put(personId, totalSeconds);
+            } else if (personId != null) {
+                // If totalSeconds is null, we set it to 0
+                secondsPerPerson.put(personId, 0L);
             }
-            secondsPerPerson.put(person.getId(), personTotalSecondsOnProject);
         }
 
         return secondsPerPerson;
     }
 
-    /**
-     * Maps a set of persons to a list of AssignedPersonDTOs for a project.
-     * @param persons The set of persons assigned to the project.
-     * @param secondsPerPersonForProject A map of person IDs to their total seconds on the project.
-     * @param totalProjectActualHours The total actual hours for the entire project.
-     * @param projectId The ID of the current project.
-     * @return A list of AssignedPersonDTOs.
-     */
-    private List<ProjectDetailDTO.AssignedPersonDTO> mapPersonsToAssignedPersonDTOs(
-            Set<Person> persons,
-            Map<Integer, Long> secondsPerPersonForProject,
-            double totalProjectActualHours,
-            Integer scheduledEffortHours,
-            Integer projectId) {
-
-        if (persons == null) {
-            return new ArrayList<>();
-        }
-
-        double percentageDenominatorHours = getPercentageDenominatorHours(totalProjectActualHours, scheduledEffortHours);
-
-        return persons.stream().map(person -> {
-            List<TimeSlotDetailDTO> relevantTimeSlots = person.getTimeslots().stream()
-                    .filter(ts -> ts.getProject() != null && ts.getProject().getId().equals(projectId))
-                    .map(TimeSlotDetailDTO::new)
-                    .collect(Collectors.toList());
-
-            long personActualSecondsOnProject = secondsPerPersonForProject.getOrDefault(person.getId(), 0L);
-            double personActualHoursBookedOnProject = personActualSecondsOnProject / 3600.0;
-
-            double percentageOfScheduledEffort = 0.0;
-            if (totalProjectActualHours > 0) {
-                percentageOfScheduledEffort = (personActualHoursBookedOnProject / percentageDenominatorHours) * 100.0;
-            }
-
-            return new ProjectDetailDTO.AssignedPersonDTO(
-                    person.getId(),
-                    person.getFirstName(),
-                    person.getLastName(),
-                    relevantTimeSlots,
-                    personActualHoursBookedOnProject,
-                    percentageOfScheduledEffort
-            );
-        }).collect(Collectors.toList());
-    }
 
     /**
      * Get the denominator for percentage calculation.
@@ -202,19 +125,46 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + id));
 
-        Map<Integer, Long> secondsPerPersonForProject = calculateSecondsPerPersonForProject(project);
+        Map<Integer, Long> secondsPerPersonForProject = getTimeSpentPerPersonOnProjectFromDb(id);
 
         long totalProjectActualSeconds = secondsPerPersonForProject.values().stream().mapToLong(Long::longValue).sum();
         double totalProjectActualHours = totalProjectActualSeconds / 3600.0;
 
-        // Map assinged persons to AssignedPersonDTO
-        List<ProjectDetailDTO.AssignedPersonDTO> assignedPersonDTOs = mapPersonsToAssignedPersonDTOs(
-                project.getPersons(),
-                secondsPerPersonForProject,
-                totalProjectActualHours,
-                project.getScheduled_effort(),
-                project.getId()
-        );
+        // 4. Map assigned persons to AssignedPersonDTO, using the pre-calculated sums
+        List<ProjectDetailDTO.AssignedPersonDTO> assignedPersonDTOs = project.getPersons().stream()
+                .map(person -> {
+                    // Get the sum for this person from our efficiently fetched map, default to 0L if not present
+                    long personActualSecondsOnProject = secondsPerPersonForProject.getOrDefault(person.getId(), 0L);
+                    double personActualHoursBookedOnProject = personActualSecondsOnProject / 3600.0;
+
+                    double percentageOfScheduledEffort = 0.0; // Denominator logic as before
+                    double percentageDenominatorHours = getPercentageDenominatorHours(totalProjectActualHours, project.getScheduled_effort());
+                    if (percentageDenominatorHours > 0) { // Avoid division by zero
+                        percentageOfScheduledEffort = (personActualHoursBookedOnProject / percentageDenominatorHours) * 100.0;
+                    }
+
+                    // Fetch only timeslots for this specific person ON THIS project for display
+                    // This part still requires careful fetching if you display individual timeslots.
+                    // The new query already did the SUM, this is for listing timeslots if needed.
+                    List<TimeSlotDetailDTO> relevantTimeSlotsForDisplay = person.getTimeslots().stream()
+                            .filter(ts -> ts.getProject() != null && ts.getProject().getId().equals(project.getId()))
+                            .map(TimeSlotDetailDTO::new)
+                            .collect(Collectors.toList());
+                    // If person.getTimeslots() is lazy, this ^ will cause N+1 if not handled.
+                    // For a truly optimized details page displaying timeslots:
+                    // - You might fetch timeslots separately filtered by project and person.
+                    // - Or, if Project.persons is fetched with a graph that includes their timeslots filtered by project (complex).
+                    // For now, the focus is on the SUM. If the DTO *only* needed the sum, you wouldn't iterate person.getTimeslots() here.
+
+                    return new ProjectDetailDTO.AssignedPersonDTO(
+                            person.getId(),
+                            person.getFirstName(),
+                            person.getLastName(),
+                            relevantTimeSlotsForDisplay, // This list is for display, not for the sum
+                            personActualHoursBookedOnProject, // This sum is from the efficient query
+                            percentageOfScheduledEffort
+                    );
+                }).toList();
 
         return new ProjectDetailDTO(
                 project.getId(),
@@ -316,19 +266,6 @@ public class ProjectService {
             throw new IllegalArgumentException("Cannot assign persons. Invalid Person IDs provided: " + personIds);
         }
         personsToAssign.forEach(project::addPerson);
-    }
-
-    /**
-     * Maps Project Entity to ProjectDTO.
-     * This is used for updating projects.
-     * @param project The Project entity to map.
-     * @return A ProjectDTO containing the project's basic info and person IDs.
-     */
-    public ProjectDTO mapEntityToDto(Project project) {
-        Set<Integer> personIds = project.getPersons().stream()
-                .map(Person::getId)
-                .collect(Collectors.toSet());
-        return new ProjectDTO(project.getName(), project.getDescription(), project.getScheduled_effort(), personIds);
     }
 
     /**
